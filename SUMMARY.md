@@ -28,4 +28,5 @@
   * [Tiny URL Design](design/system-design/tiny-url-design.md)
 * [九章系统设计](design/jiu-zhang-xi-tong-she-ji.md)
   * [1. 新鲜事设计](design/xin-xian-shi-she-ji.md)
+  * [4. 用户关系设计](design/yong-hu-guan-xi-she-ji.md)
 
