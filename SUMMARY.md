@@ -29,4 +29,5 @@
 * [九章系统设计](design/jiuzhang/jiuzhang.md)
   * [1. 新鲜事设计](design/jiuzhang/news_feed.md)
   * [4. 用户关系设计](design/jiuzhang/user_relationships.md)
+  * [8. Sharding & Consistent Hashing](design/jiuzhang/sharding-and-consistent-hashing.md)
 
