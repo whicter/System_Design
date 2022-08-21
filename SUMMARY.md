@@ -30,4 +30,7 @@
   * [1. 新鲜事设计](design/jiuzhang/news_feed.md)
   * [4. 用户关系设计](design/jiuzhang/user_relationships.md)
   * [8. Sharding & Consistent Hashing](design/jiuzhang/sharding-and-consistent-hashing.md)
+* [Bytebytego](design/bytebytego.md)
+  * [Scale From Zero To Millions Of Users](design/bytebytego/scale-from-zero-to-millions-of-users.md)
+  * [Short Url](design/bytebytego/short-url.md)
 
