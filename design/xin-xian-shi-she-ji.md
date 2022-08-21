@@ -14,7 +14,7 @@
 	* 一台 Web Server 约承受量是 1k 的 QPS (考虑到逻辑处理时间以及数据库查询的瓶颈)
 	* 一台 SQL Database 约承受量是 1k 的 QPS(如果 JOIN 和 INDEX query比较多的话，这个值会更小)
 	*  一台 NoSQL Database (Memcached) 约承受量是 1M 的 QPS
-	* 
+
 ## Pull Mode
 - 算法
 	* 在用户查看News Feed时，获取每个好友的前100条Tweets，合并出前100条News Feed • K路归并算法 Merge K Sorted Arrays
