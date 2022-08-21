@@ -1,4 +1,4 @@
-# 8 Sharding & Consistant Hashing
+# 8. Sharding & Consistant Hashing
 
 ## Simple horisontal sharding
 - 对机器数目取模
