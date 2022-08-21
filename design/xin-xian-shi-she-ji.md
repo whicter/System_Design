@@ -71,3 +71,4 @@
 			* DB.insertNewsFeed(tweet, follower)
 			* Follower 数目可能很大
 			
+![](/assets/push 原理.png)
