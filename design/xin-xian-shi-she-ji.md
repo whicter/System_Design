@@ -41,6 +41,7 @@
 - 缺陷
 	* 实时计算
 	* N次DB Reads非常慢 且发生在用户获得News Feed的请求过程中
+![](/assets/pull原理.png)
 
 ## Push Mode
 -  算法  
