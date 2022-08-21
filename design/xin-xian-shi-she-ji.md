@@ -37,13 +37,9 @@
 		* DB.insertTweet(request.user,tweet)
 		* return success
 
-
+![](/assets/News Feed Table.jpg)
 ![](/assets/pull原理.png)
-![](/assets/pull原理.png)
 
-
-
-![](/assets/pull原理.png)
 
 
 
