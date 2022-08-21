@@ -26,7 +26,7 @@
   * [Post 系统设计（Top K）](design/system-design/post-xi-tong-she-ji-ff08-top-k.md)
   * [Twitter Design](design/system-design/twitter-design.md)
   * [Tiny URL Design](design/system-design/tiny-url-design.md)
-* [九章系统设计](design/jiu-zhang-xi-tong-she-ji.md)
-  * [1. 新鲜事设计](design/xin-xian-shi-she-ji.md)
-  * [4. 用户关系设计](design/yong-hu-guan-xi-she-ji.md)
+* [九章系统设计](design/jiuzhang/jiuzhang.md)
+  * [1. 新鲜事设计](design/jiuzhang/news_feed.md)
+  * [4. 用户关系设计](design/jiuzhang/user_relationships.md)
 
