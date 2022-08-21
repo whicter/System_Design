@@ -33,4 +33,5 @@
 * [Bytebytego](design/bytebytego.md)
   * [Scale From Zero To Millions Of Users](design/bytebytego/scale-from-zero-to-millions-of-users.md)
   * [Short Url](design/bytebytego/short-url.md)
+  * [Web Crawler](design/bytebytego/web-crawler.md)
 
