@@ -39,10 +39,14 @@
 
 
 ![](/assets/pull原理.png)
-	
-![](/assets/News Feed Table.jpg)  
+![](/assets/pull原理.png)
 
-![](/assets/push 原理.png)
+
+
+![](/assets/pull原理.png)
+
+
+
 
 - Pseudo Code
 	* getNewsFeed(request)
