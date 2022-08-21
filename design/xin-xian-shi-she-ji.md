@@ -55,7 +55,6 @@
 	* Postatweet=>N个粉丝，需要N次DBWrites
 	* 好处是可以用异步任务在后台执行，无需用户等待
 	* ```select * from news_feed_table where owner_id=MY_ID order_by created_at desc limit 20;```
-	
 
 - Pseudo Code
 	* getNewsFeed(request)
@@ -72,5 +71,3 @@
 			* DB.insertNewsFeed(tweet, follower)
 			* Follower 数目可能很大
 			
-![](/assets/News Feed Table.jpg)
-![](/assets/push 原理.png)
