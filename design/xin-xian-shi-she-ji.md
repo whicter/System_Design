@@ -39,23 +39,6 @@
 
 
 ![](/assets/pull原理.png)
-
-- 缺陷
-	* 实时计算
-	* N次DB Reads非常慢 且发生在用户获得News Feed的请求过程中
-
-## Push Mode
--  算法  
-	* 为每个用户建一个List存储他的News Feed信息  
-	* 用户发一个Tweet之后，将该推文逐个推送到每个用户的News Feed List中
-	* 关键词:Fanout  
-	* 用户需要查看News Feed时，只需要从该News Feed List中读取最新的100条即可
-
-- 复杂度分析  	
-	* NewsFeed=>1次DBRead  
-	* Postatweet=>N个粉丝，需要N次DBWrites
-	* 好处是可以用异步任务在后台执行，无需用户等待
-	* ```select * from news_feed_table where owner_id=MY_ID order_by created_at desc limit 20;```
 	
 ![](/assets/News Feed Table.jpg)  
 
