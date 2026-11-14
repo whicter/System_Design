@@ -21,7 +21,7 @@ import urllib.parse
 
 SRC = "_site_src"
 INDEX = "__index__"
-SKIP = {".git", ".github", SRC, "site", "_site_pass1", "mkdocs.yml", "_mkdocs.yml"}
+SKIP = {".git", ".github", SRC, "site", "_site_pass1", "mkdocs.yml", "_mkdocs.yml", "home.md"}
 MATHJAX = """window.MathJax = {
   tex: {inlineMath: [["\\\\(", "\\\\)"]], displayMath: [["\\\\[", "\\\\]"]], processEscapes: true, processEnvironments: true},
   options: {ignoreHtmlClass: ".*|", processHtmlClass: "arithmatex"}
@@ -325,7 +325,7 @@ def add_outlines(nav, base, built):
         if isinstance(value, list):
             out.append({title: add_outlines(value, base, built)})
             continue
-        if os.path.basename(value).lower() == "readme.md" and os.path.dirname(value) == "":
+        if value in ("index.md", "README.md") or value.startswith("_sections/") or not value.endswith(".md"):
             out.append(entry)
             continue
         kids = outline_children(value, base, built)
@@ -344,13 +344,235 @@ def write_config(nav):
         f.write("\n".join(lines) + "\n")
 
 
+HOME = "home.md"
+SITE_DIR = os.path.join(".github", "site")
+
+
+def load_sections_info():
+    path = os.path.join(SITE_DIR, "sections.json")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    return {}
+
+
+def first_paragraph(md_path, limit=90):
+    """Plain-text excerpt of the first real paragraph of a page."""
+    try:
+        text = open(md_path, encoding="utf-8").read()
+    except OSError:
+        return ""
+    text = re.sub(r'```.*?```', '', text, flags=re.S)
+    for block in re.split(r'\n\s*\n', text):
+        b = block.strip()
+        if not b or b.startswith(("#", "|", "!", "<", "---", "**目录**")) or re.match(r'^([-*+]|\d+\.)\s', b):
+            continue
+        b = re.sub(r'^>\s?', '', b, flags=re.M)
+        b = re.sub(r'!\[[^\]]*\]\([^)]*\)', '', b)
+        b = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', b)
+        b = re.sub(r'[*_`]+', '', b)
+        b = re.sub(r'<[^>]+>', '', b)
+        b = re.sub(r'\s+', ' ', b).strip()
+        if len(b) < 12 or "http" in b or re.match(r'^(Source|Sources|Course|课程|来源|题目来源|调研日期|Written|Last updated)', b, flags=re.I):
+            continue
+        return b if len(b) <= limit else b[:limit].rstrip("，。、；： ") + "…"
+    return ""
+
+
+def git_date(path):
+    try:
+        out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", path],
+                             capture_output=True, text=True, timeout=20)
+        return out.stdout.strip()
+    except Exception:
+        return ""
+
+
+def reading_minutes(md_path):
+    try:
+        text = open(md_path, encoding="utf-8").read()
+    except OSError:
+        return 0
+    text = re.sub(r'```.*?```', '', text, flags=re.S)
+    cjk = len(re.findall(r'[一-鿿]', text))
+    words = len(re.findall(r'[A-Za-z]+', text))
+    return max(1, round(cjk / 400 + words / 220))
+
+
+def page_href(from_path, to_path):
+    """Relative built URL from one docs page to another (directory URLs)."""
+    def url_dir(p):
+        stem = os.path.splitext(p)[0]
+        if os.path.basename(stem).lower() in ("index", "readme"):
+            stem = os.path.dirname(stem)
+        return stem
+    rel = os.path.relpath(url_dir(to_path) or ".", url_dir(from_path) or ".")
+    rel = "" if rel == "." else rel + "/"
+    return urllib.parse.quote(rel) or "./"
+
+
+def nav_pages(entries):
+    """Yield every page path in a nav subtree (skipping anchor links)."""
+    for entry in entries:
+        (_, value), = entry.items()
+        if isinstance(value, list):
+            yield from nav_pages(value)
+        elif value.endswith(".md"):
+            yield value
+
+
+def setup_home(nav):
+    """home.md becomes the site home page; README.md stays for GitHub only."""
+    if not os.path.exists(HOME):
+        return nav
+    shutil.copy2(HOME, os.path.join(SRC, "index.md"))
+    readme = os.path.join(SRC, "README.md")
+    if os.path.exists(readme):
+        os.remove(readme)
+    home_md = os.path.join(SRC, HOME)
+    if os.path.exists(home_md):
+        os.remove(home_md)
+
+    def swap(entries):
+        out = []
+        for entry in entries:
+            (title, value), = entry.items()
+            if isinstance(value, list):
+                value = swap(value)
+                if len(value) == 1 and isinstance(list(value[0].values())[0], str) \
+                        and list(value[0].values())[0] == "index.md":
+                    out.append({title: "index.md"})
+                    continue
+            elif value == "README.md":
+                value = "index.md"
+            out.append({title: value})
+        return out
+    return swap(nav)
+
+
+def build_landing_pages(nav):
+    """Each top-level section gets a landing page listing its chapters as cards."""
+    info = load_sections_info()
+    desc_file = os.path.join(SITE_DIR, "descriptions.json")
+    descriptions = json.load(open(desc_file, encoding="utf-8")) if os.path.exists(desc_file) else {}
+    original_of = {p: (p[:-len("/index.md")] + ".md" if p.endswith("/index.md") else p) for p in nav_pages(nav)}
+    out, cards = [], []
+    for idx, entry in enumerate(nav):
+        (title, value), = entry.items()
+        if not isinstance(value, list):
+            out.append(entry)
+            continue
+        landing = f"_sections/s{idx}/index.md"
+        lines = [f"# {title}", ""]
+        meta = info.get(title, {})
+        desc = meta.get("desc", "") if isinstance(meta, dict) else str(meta)
+        pages = list(nav_pages(value))
+        cards.append((title, landing, desc, meta.get("icon", "📘") if isinstance(meta, dict) else "📘",
+                      meta.get("count", f"{len(pages)} 篇文档") if isinstance(meta, dict) else f"{len(pages)} 篇文档"))
+        lines.append(f'<div class="kb-meta"><span class="kb-badge">{len(pages)} 篇</span>'
+                     + (f"<span>{html_lib.escape(desc)}</span>" if desc else "") + "</div>")
+        lines.append("")
+        lines.append('<div class="kb-chapters" markdown="0">')
+        n = 0
+        for child in value:
+            (ctitle, cvalue), = child.items()
+            if isinstance(cvalue, list):
+                first = list(cvalue[0].values())[0] if cvalue else ""
+                is_page_group = isinstance(first, str) and first.endswith(".md") \
+                    and os.path.basename(first).lower() == "index.md" and list(cvalue[0].keys())[0] == ctitle
+                if is_page_group:
+                    items = [(ctitle, first)]
+                else:
+                    lines.append(f'<div class="kb-chapter__group">{html_lib.escape(ctitle)}</div>')
+                    items = [(list(c.keys())[0], list(c.values())[0]) for c in cvalue
+                             if isinstance(list(c.values())[0], str) and list(c.values())[0].endswith(".md")]
+                    items += [(list(c.keys())[0], list(list(c.values())[0][0].values())[0]) for c in cvalue
+                              if isinstance(list(c.values())[0], list) and list(c.values())[0]
+                              and isinstance(list(list(c.values())[0][0].values())[0], str)]
+            else:
+                items = [(ctitle, cvalue)] if cvalue.endswith(".md") else []
+            for itemtitle, path in items:
+                n += 1
+                key = original_of.get(path, path)
+                excerpt = descriptions.get(key) or descriptions.get(path) or first_paragraph(os.path.join(SRC, path))
+                lines.append(
+                    f'<a class="kb-chapter" href="{page_href(landing, path)}">'
+                    f'<span class="kb-chapter__num">{n}</span><span>'
+                    f'<div class="kb-chapter__title">{html_lib.escape(itemtitle)}</div>'
+                    + (f'<div class="kb-chapter__desc">{html_lib.escape(excerpt)}</div>' if excerpt else "")
+                    + "</span></a>")
+        lines.append("</div>")
+        os.makedirs(os.path.join(SRC, os.path.dirname(landing)), exist_ok=True)
+        with open(os.path.join(SRC, landing), "w", encoding="utf-8") as fh:
+            fh.write("\n".join(lines) + "\n")
+        out.append({title: [{title: landing}] + value})
+    home = os.path.join(SRC, "index.md")
+    if cards and os.path.exists(home):
+        grid = ['<div class="kb-grid" markdown="0">']
+        for title, landing, desc, icon, count in cards:
+            grid.append(f'<a class="kb-card" href="{page_href("index.md", landing)}">'
+                        f'<div class="kb-card__icon">{icon}</div>'
+                        f'<div class="kb-card__title">{html_lib.escape(title)}</div>'
+                        f'<div class="kb-card__desc">{html_lib.escape(desc)}</div>'
+                        f'<div class="kb-card__foot">{html_lib.escape(count)}</div></a>')
+        grid.append("</div>")
+        text = open(home, encoding="utf-8").read().replace("<!-- KB_MODULE_CARDS -->", "\n".join(grid))
+        with open(home, "w", encoding="utf-8") as fh:
+            fh.write(text)
+    return out
+
+
+def add_page_meta(nav, original_paths):
+    """Badge (section), last update and reading time under each page title."""
+    for entry in nav:
+        (section, value), = entry.items()
+        if not isinstance(value, list):
+            continue
+        for path in nav_pages(value):
+            if path.startswith("_sections/"):
+                continue
+            full = os.path.join(SRC, path)
+            try:
+                text = open(full, encoding="utf-8").read()
+            except OSError:
+                continue
+            m = re.search(r'^# .+$', text, flags=re.M)
+            if not m or 'class="kb-meta"' in text[:2000]:
+                continue
+            src_path = original_paths.get(path, path)
+            date = git_date(src_path)
+            minutes = reading_minutes(full)
+            meta = (f'\n\n<div class="kb-meta"><span class="kb-badge">{html_lib.escape(section)}</span>'
+                    + (f"<span>更新于 {date}</span>" if date else "")
+                    + f"<span>约 {minutes} 分钟读完</span></div>\n")
+            text = text[:m.end()] + meta + text[m.end():]
+            with open(full, "w", encoding="utf-8") as fh:
+                fh.write(text)
+
+
+def copy_site_assets():
+    css = os.path.join(SITE_DIR, "extra.css")
+    if os.path.exists(css):
+        os.makedirs(os.path.join(SRC, "stylesheets"), exist_ok=True)
+        shutil.copy2(css, os.path.join(SRC, "stylesheets", "extra.css"))
+
+
 def main():
     copy_sources()
+    copy_site_assets()
     nav = parse_summary()
     if not nav:
         write_config(None)
         sys.exit(subprocess.call(["mkdocs", "build", "-f", "_mkdocs.yml", "-d", "site"]))
+    pages_before = set(nav_pages(nav))
     nav = promote_indexes(nav)
+    original = {}
+    for p in nav_pages(nav):
+        guess = p[:-len("/index.md")] + ".md" if p.endswith("/index.md") else p
+        original[p] = guess if guess in pages_before else p
+    nav = setup_home(nav)
+    add_page_meta(nav, original)
+    nav = build_landing_pages(nav)
     # pass 1: render once to learn each page's real heading ids
     write_config(nav)
     rc = subprocess.call(["mkdocs", "build", "-q", "-f", "_mkdocs.yml", "-d", "_site_pass1"])

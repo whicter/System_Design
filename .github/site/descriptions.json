@@ -1,0 +1,7 @@
+{
+  "05-system-design.md": "Staff 级系统设计：评分点、45/60 分钟框架、核心积木速查、题库与详解",
+  "05a-sa-course-cheatsheet.md": "面试前 10 分钟速记：6 个答题句式 + 10 个丢分点 + 事故与改需求套路",
+  "design/leetcode-lintcode-design-question.md": "LRU、LFU、All O`one 等 LeetCode / LintCode 设计题",
+  "design/oo-design.md": "面向对象设计题：以电梯设计为例",
+  "design/system-design.md": "System Design 术语、九章系统设计、ByteByteGo 与经典设计题"
+}
