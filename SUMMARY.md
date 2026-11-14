@@ -1,16 +1,15 @@
 # Summary
 
-## Preface
+## 首页
 
-* [Introduction](README.md)
-* [Content](CONTENT.md)
+* [System Design](README.md)
 
-## Interview Prep 2026
+## 面试准备（2026）
 
-* [05 · System Design（Staff 级，2026–2027）](05-system-design.md)
-* [05a · SD 速记卡（面试前 10 分钟扫）](05a-sa-course-cheatsheet.md)
+* [Staff 级系统设计](05-system-design.md)
+* [面试前速记卡](05a-sa-course-cheatsheet.md)
 
-## Design
+## 经典设计题（2022）
 
 * [LeetCode / LintCode Design Question](design/leetcode-lintcode-design-question.md)
   * [\[LeetCode\] 432. All O\`one Data Structure](design/all-oone-data-structure.md)

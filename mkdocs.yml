@@ -15,6 +15,7 @@ theme:
     - navigation.footer
     - navigation.indexes
     - toc.follow
+    - toc.integrate
     - search.highlight
     - search.suggest
     - content.code.copy
@@ -37,6 +38,9 @@ plugins:
       lang: [zh, en]
 
 markdown_extensions:
+  - mdx_truly_sane_lists:
+      nested_indent: 2
+      truly_sane: true
   - tables
   - attr_list
   - md_in_html
@@ -45,6 +49,7 @@ markdown_extensions:
   - def_list
   - toc:
       permalink: true
+      toc_depth: 4
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true

@@ -9,8 +9,8 @@ System design notes: Staff-level interview prep (framework, building blocks, que
 
 | 分类 Section | 篇数 Pages | 题数 Problems | 入口 Start here |
 |---|---|---|---|
-| **Interview Prep 2026** | 2 | — | [05 · System Design（Staff 级，2026–2027）](05-system-design.md)<br>[05a · SD 速记卡（面试前 10 分钟扫）](05a-sa-course-cheatsheet.md) |
-| **Design** | 28 | 3 | [LeetCode / LintCode Design Question](design/leetcode-lintcode-design-question.md)<br>[OO Design](design/oo-design.md)<br>[System Design](design/system-design.md) |
+| **面试准备（2026）** | 2 | — | [Staff 级系统设计](05-system-design.md)<br>[面试前速记卡](05a-sa-course-cheatsheet.md) |
+| **经典设计题（2022）** | 28 | 3 | [LeetCode / LintCode Design Question](design/leetcode-lintcode-design-question.md)<br>[OO Design](design/oo-design.md)<br>[System Design](design/system-design.md) |
 
 完整目录见 [SUMMARY.md](SUMMARY.md)，网站左侧导航与它一致。
 
