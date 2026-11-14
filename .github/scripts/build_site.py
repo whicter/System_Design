@@ -10,6 +10,7 @@ SUMMARY.md format (GitBook-compatible):
     * [Child](child.md)      -> nested under the page above (2-space indent)
   * Group name               -> a group without its own page
 """
+import html as html_lib
 import json
 import os
 import re
@@ -20,7 +21,7 @@ import urllib.parse
 
 SRC = "_site_src"
 INDEX = "__index__"
-SKIP = {".git", ".github", SRC, "site", "mkdocs.yml", "_mkdocs.yml"}
+SKIP = {".git", ".github", SRC, "site", "_site_pass1", "mkdocs.yml", "_mkdocs.yml"}
 MATHJAX = """window.MathJax = {
   tex: {inlineMath: [["\\\\(", "\\\\)"]], displayMath: [["\\\\[", "\\\\]"]], processEscapes: true, processEnvironments: true},
   options: {ignoreHtmlClass: ".*|", processHtmlClass: "arithmatex"}
@@ -90,6 +91,11 @@ def nest_extra_h1(text):
     return "\n".join(lines)
 
 
+def strip_title_number(text):
+    """'# 05 · System Design' -> '# System Design' (numbers are file order, not titles)."""
+    return re.sub(r'^(# )\d{1,3}[a-z]?\s*[·・.]\s*', r'\1', text, count=1, flags=re.M)
+
+
 def copy_sources():
     shutil.rmtree(SRC, ignore_errors=True)
     os.makedirs(SRC)
@@ -107,7 +113,7 @@ def copy_sources():
                 p = os.path.join(root, f)
                 with open(p, encoding="utf-8") as fh:
                     text = fh.read()
-                new = nest_extra_h1(strip_manual_toc(text))
+                new = strip_title_number(nest_extra_h1(strip_manual_toc(text)))
                 if new != text:
                     with open(p, "w", encoding="utf-8") as fh:
                         fh.write(new)
@@ -231,16 +237,102 @@ def promote_indexes(nav):
     return nav
 
 
-def main():
-    copy_sources()
-    nav = parse_summary()
-    if nav:
-        nav = promote_indexes(nav)
+def site_base():
+    for line in open("mkdocs.yml", encoding="utf-8"):
+        m = re.match(r'^site_url:\s*(\S+)', line)
+        if m:
+            path = urllib.parse.urlparse(m.group(1)).path
+            return path if path.endswith("/") else path + "/"
+    return "/"
+
+
+def page_url(path):
+    stem = os.path.splitext(path)[0]
+    if os.path.basename(stem).lower() in ("index", "readme"):
+        stem = os.path.dirname(stem)
+    return (urllib.parse.quote(stem) + "/") if stem else ""
+
+
+def headings_from_html(html_path):
+    if not os.path.exists(html_path):
+        return []
+    html = open(html_path, encoding="utf-8").read()
+    start = html.find('<article class="md-content__inner')
+    end = html.find("</article>", start)
+    body = html[start:end] if start >= 0 else html
+    out = []
+    for m in re.finditer(r'<h([23]) id="([^"]+)"[^>]*>(.*?)</h\1>', body, flags=re.S):
+        text = re.sub(r'<a class="headerlink".*?</a>', "", m.group(3), flags=re.S)
+        text = html_lib.unescape(re.sub(r"<[^>]+>", "", text)).strip()
+        if text:
+            out.append((int(m.group(1)), m.group(2), text))
+    return out
+
+
+def outline_children(path, base, built):
+    """H2 -> link, or H2 group of H3 links, for one page."""
+    url = base + page_url(path)
+    heads = headings_from_html(os.path.join(built, urllib.parse.unquote(page_url(path)), "index.html"))
+    if not heads:
+        return []
+    top = 2 if any(level == 2 for level, _, _ in heads) else 3
+    children, current = [], None
+    for level, hid, text in heads:
+        if level == top:
+            current = [{text: f"{url}#{hid}"}]
+            children.append((text, current))
+        elif current is not None:
+            current.append({text: f"{url}#{hid}"})
+    nav = []
+    for text, items in children:
+        nav.append(items[0] if len(items) == 1 else {text: items[1:]})
+    return nav
+
+
+def add_outlines(nav, base, built):
+    """Turn every plain page into a collapsible group: page link + its sections."""
+    out = []
+    for entry in nav:
+        (title, value), = entry.items()
+        if isinstance(value, list):
+            out.append({title: add_outlines(value, base, built)})
+            continue
+        if os.path.basename(value).lower() == "readme.md" and os.path.dirname(value) == "":
+            out.append(entry)
+            continue
+        kids = outline_children(value, base, built)
+        if len(kids) < 2:
+            out.append(entry)
+            continue
+        out.append({title: [{INDEX: value}] + kids})
+    return out
+
+
+def write_config(nav):
     lines = ["INHERIT: mkdocs.yml", f"docs_dir: {SRC}"]
     if nav:
         lines.append("nav: " + json.dumps(nav, ensure_ascii=False))
     with open("_mkdocs.yml", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+
+
+def main():
+    copy_sources()
+    nav = parse_summary()
+    if not nav:
+        write_config(None)
+        sys.exit(subprocess.call(["mkdocs", "build", "-f", "_mkdocs.yml", "-d", "site"]))
+    nav = promote_indexes(nav)
+    # pass 1: render once to learn each page's real heading ids
+    write_config(nav)
+    rc = subprocess.call(["mkdocs", "build", "-q", "-f", "_mkdocs.yml", "-d", "_site_pass1"])
+    if rc:
+        sys.exit(rc)
+    nav = add_outlines(nav, site_base(), "_site_pass1")
+    nav = promote_indexes(nav)
+    shutil.rmtree("_site_pass1", ignore_errors=True)
+    # pass 2: final site with page outlines in the sidebar
+    write_config(nav)
     sys.exit(subprocess.call(["mkdocs", "build", "-f", "_mkdocs.yml", "-d", "site"]))
 
 
