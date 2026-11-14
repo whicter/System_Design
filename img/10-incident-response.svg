@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .p{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .d{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .r{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+  </style>
+  <rect width="880" height="400" fill="#fff"/>
+  <text x="20" y="26" class="h">Incident: p95 + 5xx up on /checkout, CPU normal, deploy 20 min ago — protect customers first, diagnose second</text>
+
+  <!-- row 1 protect -->
+  <text x="20" y="58" class="b" style="fill:#D0392B">Protect</text>
+  <rect x="20" y="68" width="190" height="78" rx="8" class="p"/>
+  <text x="115" y="90" text-anchor="middle" class="b">① Impact + severity</text>
+  <text x="115" y="110" text-anchor="middle" class="s">who is hurt, how many</text>
+  <text x="115" y="126" text-anchor="middle" class="s">scope: all / one AZ / one path</text>
+  <rect x="240" y="68" width="190" height="78" rx="8" class="p"/>
+  <text x="335" y="90" text-anchor="middle" class="b">② Split roles</text>
+  <text x="335" y="110" text-anchor="middle" class="s">IC: severity, comms, decisions</text>
+  <text x="335" y="126" text-anchor="middle" class="s">Owner: mitigate + diagnose</text>
+  <rect x="460" y="68" width="200" height="78" rx="8" class="p"/>
+  <text x="560" y="90" text-anchor="middle" class="b">③ Reversible mitigation</text>
+  <text x="560" y="110" text-anchor="middle" class="s">pause releases → flag off</text>
+  <text x="560" y="126" text-anchor="middle" class="s">→ roll back (not "scale up")</text>
+  <rect x="690" y="68" width="170" height="78" rx="8" class="p"/>
+  <text x="775" y="90" text-anchor="middle" class="b">④ Verify</text>
+  <text x="775" y="110" text-anchor="middle" class="s">p95, 5xx, completed</text>
+  <text x="775" y="126" text-anchor="middle" class="s">checkouts over a window</text>
+  <path d="M210,107 L236,107" class="arr"/>
+  <path d="M430,107 L456,107" class="arr"/>
+  <path d="M660,107 L686,107" class="arr"/>
+  <text x="690" y="166" class="s" font-weight="600">Better ≠ root cause found</text>
+
+  <!-- row 2 diagnose -->
+  <text x="20" y="200" class="b" style="fill:#3B6FD8">Diagnose — each signal answers a different question</text>
+  <rect x="20" y="212" width="270" height="82" rx="8" class="d"/>
+  <text x="34" y="234" class="b">Metrics</text>
+  <text x="34" y="254" class="s">Is it unhealthy? how wide? did the fix help?</text>
+  <text x="34" y="272" class="s">Can't prove a cause.</text>
+  <rect x="305" y="212" width="270" height="82" rx="8" class="d"/>
+  <text x="319" y="234" class="b">Logs</text>
+  <text x="319" y="254" class="s">What error at this hop? group by error code,</text>
+  <text x="319" y="272" class="s">dependency, config version, release.</text>
+  <rect x="590" y="212" width="270" height="82" rx="8" class="d"/>
+  <text x="604" y="234" class="b">Traces</text>
+  <text x="604" y="254" class="s">Where did the slow request spend time?</text>
+  <text x="604" y="272" class="s">long downstream span vs new app span.</text>
+
+  <!-- row 3 review -->
+  <rect x="20" y="318" width="840" height="64" rx="8" class="r"/>
+  <text x="34" y="340" class="b">Blameless review</text>
+  <text x="34" y="360" class="s">Several contributing factors (deploy, weak config validation, retry policy, late alert) — pick ONE evidence-backed follow-up,</text>
+  <text x="34" y="376" class="s">e.g. traces show retries amplified dependency latency → change retry policy + add a load test for that failure mode.</text>
+</svg>

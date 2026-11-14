@@ -18,7 +18,7 @@ The following estimations are based on many assumptions, and it is important to 
     
 ## Step 2 - Propose high-level design and get buy-in
 
-![](/assets/simple_web_crawler_workflow.png)
+![](../../assets/simple_web_crawler_workflow.png)
 Step 1: Add seed URLs to the URL Frontier
 
 Step 2: HTML Downloader fetches a list of URLs from URL Frontier.
@@ -61,7 +61,7 @@ Sending too many requests is considered as “impolite” or even treated as den
 The general idea of enforcing politeness is to download one page at a time from the same host. A delay can be added between two download tasks. 
 
 - The politeness constraint is implemented by maintain a mapping from website hostnames to download (worker) threads. Each downloader thread has a separate FIFO queue and only 
-![](/assets/politeness.png)
+![](../../assets/politeness.png)
     * Queue router: It ensures that each queue (b1, b2, … bn) only contains URLs from the same host.
     * Mapping table: It maps each host to a queue.
     * FIFO queues b1, b2 to bn: Each queue contains URLs from the same host.
@@ -69,13 +69,13 @@ The general idea of enforcing politeness is to download one page at a time from 
     * Worker thread 1 to N. A worker thread downloads web pages one by one from the same host. A delay can be added between two download tasks.
 
 - Another way to do it is to have a scheduler
-![](/assets/politeness2.png)
+![](../../assets/politeness2.png)
 
 
 ### HTML Downloader
 #### Performance optimization
 - Distributed crawl
-![](/assets/distributed_crawl.png)
+![](../../assets/distributed_crawl.png)
 
 
 

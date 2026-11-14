@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .data{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .lag{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .lagl{stroke:#E08A00;stroke-width:1.8;fill:none;marker-end:url(#a);stroke-dasharray:6 4}
+    .panel{fill:#FAFAFA;stroke:#ddd}
+  </style>
+  <rect width="880" height="400" fill="#fff"/>
+
+  <!-- left: replicas -->
+  <rect x="10" y="10" width="425" height="380" rx="10" class="panel"/>
+  <text x="24" y="34" class="h">Read replicas: write the routing rule down</text>
+  <rect x="150" y="56" width="140" height="48" rx="8" class="box"/>
+  <text x="220" y="85" text-anchor="middle" class="b">API</text>
+
+  <rect x="30" y="170" width="160" height="56" rx="8" class="data"/>
+  <text x="110" y="194" text-anchor="middle" class="b">Primary</text>
+  <text x="110" y="212" text-anchor="middle" class="s">writes + fresh reads</text>
+  <rect x="255" y="170" width="160" height="56" rx="8" class="lag"/>
+  <text x="335" y="194" text-anchor="middle" class="b">Replicas</text>
+  <text x="335" y="212" text-anchor="middle" class="s">stale-tolerant reads</text>
+  <path d="M190,198 L251,198" class="lagl"/>
+  <text x="220" y="190" text-anchor="middle" class="s" style="fill:#B36B00">lag</text>
+
+  <path d="M185,104 L120,166" class="arr"/>
+  <path d="M255,104 L320,166" class="arr"/>
+  <text x="30" y="258" class="s"><tspan font-weight="600">→ Primary:</tspan> order confirmation page,</text>
+  <text x="30" y="274" class="s">inventory check right after checkout</text>
+  <text x="255" y="258" class="s"><tspan font-weight="600">→ Replica:</tspan> catalog,</text>
+  <text x="255" y="274" class="s">older order history</text>
+  <text x="24" y="314" class="s">Option: pin the session to primary for N seconds after a write</text>
+  <text x="24" y="330" class="s">(a trade-off, not proof the replica caught up).</text>
+  <text x="24" y="356" class="s"><tspan font-weight="600">Diagnosis:</tspan> "my new order is missing" only on replica-routed</text>
+  <text x="24" y="372" class="s">pages → lag/routing. Missing on primary too → different bug.</text>
+
+  <!-- right: CQRS -->
+  <rect x="445" y="10" width="425" height="380" rx="10" class="panel"/>
+  <text x="459" y="34" class="h">CQRS: a separate read model, with its own costs</text>
+  <rect x="465" y="56" width="150" height="48" rx="8" class="box"/>
+  <text x="540" y="78" text-anchor="middle" class="b">Commands</text>
+  <text x="540" y="95" text-anchor="middle" class="s">checkout, edit product</text>
+  <rect x="700" y="56" width="150" height="48" rx="8" class="box"/>
+  <text x="775" y="78" text-anchor="middle" class="b">Queries</text>
+  <text x="775" y="95" text-anchor="middle" class="s">browse, search facets</text>
+
+  <rect x="465" y="150" width="150" height="56" rx="8" class="data"/>
+  <text x="540" y="174" text-anchor="middle" class="b">Write model</text>
+  <text x="540" y="192" text-anchor="middle" class="s">authority, constraints</text>
+  <rect x="700" y="150" width="150" height="56" rx="8" class="lag"/>
+  <text x="775" y="174" text-anchor="middle" class="b">Read model</text>
+  <text x="775" y="192" text-anchor="middle" class="s">query-shaped, stale</text>
+  <path d="M540,104 L540,146" class="arr"/>
+  <path d="M775,104 L775,146" class="arr"/>
+
+  <rect x="580" y="240" width="160" height="50" rx="8" class="lag"/>
+  <text x="660" y="262" text-anchor="middle" class="b">Projector</text>
+  <text x="660" y="279" text-anchor="middle" class="s">change feed consumer</text>
+  <path d="M560,206 L610,236" class="lagl"/>
+  <path d="M710,240 L760,210" class="lagl"/>
+
+  <text x="459" y="316" class="s"><tspan font-weight="600">You now own:</tspan> idempotent projector (replays happen),</text>
+  <text x="459" y="332" class="s">lag metric + alert, rebuild-from-log, reconciliation.</text>
+  <text x="459" y="356" class="s"><tspan font-weight="600">Worth it only if</tspan> reads need a different scale or shape.</text>
+  <text x="459" y="372" class="s">Checkout always re-validates against the write model.</text>
+</svg>

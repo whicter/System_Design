@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D0392B"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .ra{stroke:#D0392B;stroke-width:1.8;fill:none;marker-end:url(#r);stroke-dasharray:6 4}
+    .stack{fill:#FAFAFA;stroke:#999;stroke-width:1.5}
+    .eu{fill:#FBFDFF;stroke:#D0392B;stroke-width:2;stroke-dasharray:7 5}
+    .comp{fill:#fff;stroke:#bbb}
+  </style>
+  <rect width="860" height="420" fill="#fff"/>
+  <text x="20" y="26" class="h">Mid-interview change: "EU customers' data must stay in the EU" → isolated regional stacks</text>
+
+  <rect x="20" y="170" width="120" height="56" rx="8" class="box"/>
+  <text x="80" y="194" text-anchor="middle" class="b">Customer</text>
+  <text x="80" y="212" text-anchor="middle" class="s">upload request</text>
+
+  <rect x="190" y="160" width="170" height="76" rx="8" class="box"/>
+  <text x="275" y="184" text-anchor="middle" class="b">Global router</text>
+  <text x="275" y="202" text-anchor="middle" class="s">customer → home region</text>
+  <text x="275" y="218" text-anchor="middle" class="s">BEFORE upload</text>
+  <path d="M140,198 L186,198" class="arr"/>
+
+  <rect x="190" y="270" width="170" height="70" rx="8" fill="#F6F8FA" stroke="#bbb"/>
+  <text x="275" y="292" text-anchor="middle" class="b">Global metadata</text>
+  <text x="275" y="310" text-anchor="middle" class="s">minimal; no document</text>
+  <text x="275" y="326" text-anchor="middle" class="s">content or derived PII</text>
+  <path d="M275,236 L275,266" class="arr"/>
+
+  <!-- US stack -->
+  <rect x="430" y="50" width="400" height="140" rx="10" class="stack"/>
+  <text x="444" y="72" class="b">US stack</text>
+  <!-- EU stack -->
+  <rect x="430" y="220" width="400" height="140" rx="10" class="eu"/>
+  <text x="444" y="242" class="b" style="fill:#D0392B">EU stack — data never leaves this boundary</text>
+
+  <g class="s">
+    <rect x="444" y="86" width="80" height="34" rx="5" class="comp"/><text x="484" y="107" text-anchor="middle">ingress</text>
+    <rect x="532" y="86" width="90" height="34" rx="5" class="comp"/><text x="577" y="107" text-anchor="middle">object store</text>
+    <rect x="630" y="86" width="80" height="34" rx="5" class="comp"/><text x="670" y="107" text-anchor="middle">queue</text>
+    <rect x="718" y="86" width="96" height="34" rx="5" class="comp"/><text x="766" y="107" text-anchor="middle">workers</text>
+    <rect x="444" y="132" width="80" height="34" rx="5" class="comp"/><text x="484" y="153" text-anchor="middle">DB</text>
+    <rect x="532" y="132" width="90" height="34" rx="5" class="comp"/><text x="577" y="153" text-anchor="middle">keys (KMS)</text>
+    <rect x="630" y="132" width="184" height="34" rx="5" class="comp"/><text x="722" y="153" text-anchor="middle">monitoring access · DR plan</text>
+
+    <rect x="444" y="256" width="80" height="34" rx="5" class="comp"/><text x="484" y="277" text-anchor="middle">ingress</text>
+    <rect x="532" y="256" width="90" height="34" rx="5" class="comp"/><text x="577" y="277" text-anchor="middle">object store</text>
+    <rect x="630" y="256" width="80" height="34" rx="5" class="comp"/><text x="670" y="277" text-anchor="middle">queue</text>
+    <rect x="718" y="256" width="96" height="34" rx="5" class="comp"/><text x="766" y="277" text-anchor="middle">workers</text>
+    <rect x="444" y="302" width="80" height="34" rx="5" class="comp"/><text x="484" y="323" text-anchor="middle">DB</text>
+    <rect x="532" y="302" width="90" height="34" rx="5" class="comp"/><text x="577" y="323" text-anchor="middle">keys (KMS)</text>
+    <rect x="630" y="302" width="184" height="34" rx="5" class="comp"/><text x="722" y="323" text-anchor="middle">monitoring access · DR plan</text>
+  </g>
+
+  <path d="M360,186 L426,130" class="arr"/>
+  <path d="M360,212 L426,280" class="arr"/>
+  <path d="M630,196 L630,214" class="ra"/>
+  <text x="640" y="210" class="s" style="fill:#D0392B">✗ no cross-border replication</text>
+
+  <text x="20" y="390" class="s"><tspan font-weight="600">Trade-off:</tspan> smaller blast radius + residency, at the cost of 2× deploys/observability. Active-active only if a stricter RTO justifies it.</text>
+  <text x="20" y="408" class="s"><tspan font-weight="600">New check:</tspan> a test proving the router REJECTS a customer sent to the wrong region; a regional recovery drill.</text>
+</svg>

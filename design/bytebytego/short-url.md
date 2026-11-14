@@ -27,7 +27,7 @@
 
 ## Step 3 - Design deep dive
 ### URL shortening deep dive
-![](/assets/url_shortener_workflow.png)
+![](../../assets/url_shortener_workflow.png)
 
 ### Base 62 conversion
 
@@ -36,7 +36,7 @@ Base conversion is another approach commonly used for URL shorteners. Base conve
 From its name, base 62 is a way of using 62 characters for encoding. The mappings are: 0-0, ..., 9-9, 10-a, 11-b, ..., 35-z, 36-A, ..., 61-Z, where ‘a’ stands for 10, ‘Z’ stands for 61, etc.
 1115710 = 2 x 622 + 55 x 621 + 59 x 620 = [2, 55, 59] -> [2, T, X] in base 62 representation. 
 
-![](/assets/base_62_conversion.png)
+![](../../assets/base_62_conversion.png)
 
 ### Data model
 id, shortURL, longURL.
@@ -49,7 +49,7 @@ id, shortURL, longURL.
 - Save ID, shortURL, and longURL to the database
 
 ### URL redirecting deep dive
-![](/assets/url_redirecting_design.png)
+![](../../assets/url_redirecting_design.png)
 
 
 

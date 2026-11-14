@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .ok{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .async{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .dia{fill:#FFF8E1;stroke:#E0B000;stroke-width:1.5}
+    .db{fill:#F3EEFC;stroke:#7B5CC4;stroke-width:1.5}
+    .grp{fill:#FAFAFA;stroke:#ccc;stroke-dasharray:4 3}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .m{font-size:11.5px;fill:#1f2328;font-family:Menlo, monospace}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .yn{font-size:12px;font-weight:600}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .aarr{stroke:#E08A00;stroke-width:1.5;fill:none;marker-end:url(#a);stroke-dasharray:5 4}
+  </style>
+  <rect width="920" height="600" fill="#fff"/>
+  <text x="20" y="26" class="h">Leaf segment mode（号段模式）: two in-memory buffers, the next range is loaded before the current one runs out</text>
+
+  <!-- in-memory group -->
+  <rect x="14" y="44" width="560" height="430" rx="10" class="grp"/>
+  <text x="26" y="64" class="s">inside one ID service process（同一个发号服务进程内）</text>
+
+  <rect x="30" y="80" width="170" height="50" rx="8" class="box"/>
+  <text x="115" y="101" text-anchor="middle" class="b">business thread</text>
+  <text x="115" y="118" text-anchor="middle" class="s">业务线程要一个 ID</text>
+  <path d="M200,105 L238,105" class="arr"/>
+
+  <rect x="240" y="76" width="320" height="58" rx="8" class="ok"/>
+  <text x="400" y="98" text-anchor="middle" class="b">current buffer（在用号段）[1 … 1000]</text>
+  <text x="400" y="118" text-anchor="middle" class="m">AtomicLong.getAndIncrement()</text>
+  <text x="400" y="131" text-anchor="middle" class="s">lock-free, ~nanoseconds（无锁取号）</text>
+  <path d="M400,134 L400,154" class="arr"/>
+
+  <polygon points="400,156 540,196 400,236 260,196" class="dia"/>
+  <text x="400" y="190" text-anchor="middle" class="b">used ≥ 10% and backup IDLE ?</text>
+  <text x="400" y="207" text-anchor="middle" class="s">已用一成且备用槽空闲？</text>
+  <path d="M540,196 L600,196 L600,170 L630,170" class="arr"/>
+  <text x="548" y="188" class="yn" style="fill:#E08A00">yes 是</text>
+  <path d="M260,196 L120,196 L120,260" class="arr"/>
+  <text x="168" y="188" class="yn" style="fill:#2E8B57">no 否 → skip</text>
+
+  <polygon points="120,262 230,298 120,334 10,298" class="dia"/>
+  <text x="120" y="294" text-anchor="middle" class="b">current used up ?</text>
+  <text x="120" y="311" text-anchor="middle" class="s">在用号段发完了？</text>
+  <path d="M120,334 L120,356" class="arr"/>
+  <text x="128" y="350" class="yn" style="fill:#3B6FD8">yes 是</text>
+  <path d="M10,298 L10,105 L28,105" class="arr"/>
+  <text x="14" y="248" class="yn" style="fill:#2E8B57">no 否</text>
+
+  <polygon points="120,358 230,394 120,430 10,394" class="dia"/>
+  <text x="120" y="390" text-anchor="middle" class="b">backup READY ?</text>
+  <text x="120" y="407" text-anchor="middle" class="s">备用号段装好了？</text>
+  <path d="M230,394 L280,394" class="arr"/>
+  <text x="236" y="386" class="yn" style="fill:#2E8B57">yes 是</text>
+  <rect x="282" y="370" width="270" height="48" rx="8" class="ok"/>
+  <text x="417" y="390" text-anchor="middle" class="b">flip pointer 0 ⇄ 1（切换读指针）</text>
+  <text x="417" y="407" text-anchor="middle" class="s">no DB call here（这一步不碰数据库）</text>
+  <path d="M120,430 L120,452 L300,452" class="arr"/>
+  <text x="128" y="446" class="yn" style="fill:#D0392B">no 否</text>
+  <text x="304" y="456" class="s">rare: thread waits briefly for the load（少见：短暂等待）</text>
+
+  <!-- async loader -->
+  <rect x="632" y="146" width="270" height="50" rx="8" class="async"/>
+  <text x="767" y="166" text-anchor="middle" class="b">CAS: backup IDLE → LOADING</text>
+  <text x="767" y="183" text-anchor="middle" class="s">只有一个线程能抢到加载任务</text>
+  <path d="M767,196 L767,222" class="aarr"/>
+  <rect x="632" y="224" width="270" height="44" rx="8" class="async"/>
+  <text x="767" y="244" text-anchor="middle" class="b">async thread pool（异步线程池）</text>
+  <text x="767" y="260" text-anchor="middle" class="s">business threads never block（业务线程不等）</text>
+  <path d="M767,268 L767,294" class="aarr"/>
+  <rect x="610" y="292" width="300" height="104" rx="8" class="db"/>
+  <text x="760" y="312" text-anchor="middle" class="b">MySQL table leaf_alloc（号段表）</text>
+  <text x="622" y="332" class="m">UPDATE leaf_alloc</text>
+  <text x="622" y="348" class="m">SET max_id = max_id + step</text>
+  <text x="622" y="364" class="m">WHERE biz_tag = 'order';</text>
+  <text x="622" y="384" class="s">atomic（原子）→ range [1001 … 2000]</text>
+  <path d="M760,396 L760,416 L556,416 L556,406" class="aarr"/>
+  <text x="600" y="432" class="s">backup = READY（备用号段就绪）</text>
+
+  <!-- adaptive step -->
+  <rect x="14" y="490" width="896" height="98" rx="8" style="fill:#FFF8E1;stroke:#E0B000"/>
+  <text x="28" y="512" class="b">Adaptive step（自适应步长）— target: one range lasts ~15 minutes（一个号段用 15 分钟左右）</text>
+  <text x="28" y="534" class="s">• last range used up in &lt; 15 min → next step = step × 2 (capped)（流量涨了，下次多拿）</text>
+  <text x="28" y="552" class="s">• last range lasted &gt; 30 min → next step = step ÷ 2, not below the configured minimum（流量降了，下次少拿；15–30 分钟之间不动，防来回抖）</text>
+  <text x="28" y="572" class="s">• trade-off: bigger steps = fewer DB hits, but a crash throws away the unused part of the range → IDs have gaps（宕机会浪费号，ID 有空洞）</text>
+</svg>

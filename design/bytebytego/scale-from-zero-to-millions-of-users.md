@@ -1,19 +1,19 @@
 ## Database Replication
-![](/assets/master_slave_db_cluster.svg)
+![](../../assets/master_slave_db_cluster.svg)
 
 ### Load balancer and database replication.
-![](/assets/lb_with_db_replica.webp)
+![](../../assets/lb_with_db_replica.webp)
 
 ## Cache
 ### CDN
 - A CDN is a network of geographically dispersed servers used to deliver static content. CDN servers cache static content like images, videos, CSS, JavaScript files, etc.
-![](/assets/CDN_workflow.webp)
+![](../../assets/CDN_workflow.webp)
 
 ### CDN with Cache
-![](/assets/CDN_with_Cache.webp)
+![](../../assets/CDN_with_Cache.webp)
 
 ## Data Center
-![](/assets/data_center.webp)
+![](../../assets/data_center.webp)
 
 ## Database Scaling
 Sharding is a great technique to scale the database but it is far from a perfect solution. It introduces complexities and new challenges to the system:
@@ -24,4 +24,4 @@ Sharding is a great technique to scale the database but it is far from a perfect
 
 - **Join and de-normalization**: Once a database has been sharded across multiple servers, it is hard to perform join operations across database shards. A common workaround is to de-normalize the database so that queries can be performed in a single table.
 
-![](/assets/complete_design.webp)
+![](../../assets/complete_design.webp)

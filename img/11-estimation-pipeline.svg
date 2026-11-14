@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .key{fill:#FFF8E1;stroke:#E0B000;stroke-width:1.5}
+    .ok{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .bad{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+  </style>
+  <rect width="880" height="430" fill="#fff"/>
+  <text x="20" y="26" class="h">Back-of-the-envelope: one chain from DAU to servers, storage, bandwidth (Twitter-like, fictional)</text>
+
+  <!-- server chain -->
+  <rect x="20" y="48" width="130" height="56" rx="8" class="box"/>
+  <text x="85" y="72" text-anchor="middle" class="b">500M DAU</text>
+  <text x="85" y="90" text-anchor="middle" class="s">× 20 req/day</text>
+  <rect x="180" y="48" width="130" height="56" rx="8" class="box"/>
+  <text x="245" y="72" text-anchor="middle" class="b">10B req/day</text>
+  <text x="245" y="90" text-anchor="middle" class="s">÷ 86,400 s</text>
+  <rect x="340" y="48" width="130" height="56" rx="8" class="box"/>
+  <text x="405" y="72" text-anchor="middle" class="b">~115K RPS avg</text>
+  <text x="405" y="90" text-anchor="middle" class="s">÷ 64K RPS/server</text>
+  <path d="M150,76 L176,76" class="arr"/>
+  <path d="M310,76 L336,76" class="arr"/>
+
+  <!-- three peak assumptions -->
+  <text x="500" y="44" class="b">Which peak?</text>
+  <rect x="500" y="52" width="360" height="34" rx="6" class="ok"/>
+  <text x="512" y="74" class="s"><tspan font-weight="600">Average only:</tspan> 2 servers → fails the plausibility test</text>
+  <rect x="500" y="92" width="360" height="34" rx="6" class="key"/>
+  <text x="512" y="114" class="s"><tspan font-weight="600">80/20 rule:</tspan> 80% of traffic in 4.8 h → ~8 servers ✔ say this</text>
+  <rect x="500" y="132" width="360" height="34" rx="6" class="bad"/>
+  <text x="512" y="154" class="s"><tspan font-weight="600">All DAU in one second:</tspan> 157K servers → absurd</text>
+  <path d="M470,76 L496,76" class="arr"/>
+
+  <!-- storage -->
+  <text x="20" y="200" class="h">Storage per day</text>
+  <rect x="20" y="212" width="400" height="104" rx="8" class="box"/>
+  <text x="34" y="236" class="s">500M × 3 tweets = 1.5B tweets/day</text>
+  <text x="34" y="256" class="s">text 250 B → 0.375 TB</text>
+  <text x="34" y="276" class="s">10% images × 200 KB → 30 TB · 5% video × 3 MB → 225 TB</text>
+  <text x="34" y="300" class="b">≈ 255 TB/day ≈ 93 PB/year — media dominates</text>
+
+  <!-- bandwidth -->
+  <text x="450" y="200" class="h">Bandwidth</text>
+  <rect x="450" y="212" width="410" height="104" rx="8" class="box"/>
+  <text x="464" y="236" class="s">in  = bytes written per day ÷ 86,400 × 8 (bits!)</text>
+  <text x="464" y="256" class="s">     255 TB/day → ≈ 24 Gbps</text>
+  <text x="464" y="276" class="s">out = 50 tweets viewed/user/day, same media mix</text>
+  <text x="464" y="300" class="b">≈ 394 Gbps out — reads ≫ writes → CDN</text>
+
+  <!-- rules -->
+  <rect x="20" y="334" width="840" height="80" rx="8" class="key"/>
+  <text x="34" y="356" class="b">Reference per-node QPS (orders of magnitude)</text>
+  <text x="34" y="376" class="s">relational DB ~1K · key-value store ~10K · cache ~100K–1M · CPU work X : memory 10X : disk/network IO 100X</text>
+  <text x="34" y="398" class="s">Always do a plausibility check: "2 servers for 500M DAU" or "157K servers" means an assumption is wrong — say which one.</text>
+</svg>

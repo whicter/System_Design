@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .bad{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .ok{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .m{font-size:13px;fill:#1f2328;font-family:Menlo, monospace}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .panel{fill:#FAFAFA;stroke:#ddd}
+  </style>
+  <rect width="880" height="430" fill="#fff"/>
+  <text x="20" y="26" class="h">Collaborative editing (Google Docs): concurrent edits must converge without locking anyone out</text>
+
+  <!-- problem -->
+  <rect x="20" y="44" width="840" height="96" rx="8" class="bad"/>
+  <text x="34" y="66" class="b">The problem: positions shift</text>
+  <text x="34" y="88" class="m">doc = "ABC"   Alice: insert("X", 1)   Bob: delete(2)  (meant to delete "C")</text>
+  <text x="34" y="108" class="s">Apply Alice first → "AXBC"; Bob's delete(2) now removes "B", not "C". Same ops, different order → different documents.</text>
+  <text x="34" y="126" class="s">Two people deleting the same char twice → two chars gone. Ops are neither commutative nor idempotent.</text>
+
+  <!-- OT -->
+  <rect x="20" y="156" width="410" height="200" rx="10" class="panel"/>
+  <text x="34" y="178" class="h">Operational Transformation (OT)</text>
+  <rect x="40" y="192" width="170" height="44" rx="8" class="box"/>
+  <text x="125" y="219" text-anchor="middle" class="b">client ops</text>
+  <rect x="240" y="192" width="170" height="44" rx="8" class="ok"/>
+  <text x="325" y="212" text-anchor="middle" class="b">central server</text>
+  <text x="325" y="228" text-anchor="middle" class="s">orders + transforms</text>
+  <path d="M210,214 L236,214" class="arr"/>
+  <text x="34" y="262" class="m">Bob's delete(2) transformed</text>
+  <text x="34" y="280" class="m">against insert(1) → delete(3) ✔</text>
+  <text x="34" y="306" class="s">+ index-based, small ops, what Google Docs uses</text>
+  <text x="34" y="324" class="s">− needs a central ordering server</text>
+  <text x="34" y="342" class="s">− transform functions are notoriously hard to get right</text>
+
+  <!-- CRDT -->
+  <rect x="450" y="156" width="410" height="200" rx="10" class="panel"/>
+  <text x="464" y="178" class="h">CRDT</text>
+  <text x="464" y="204" class="s">every character gets a unique ID + a position between neighbours</text>
+  <text x="464" y="228" class="m">A(1.0)  B(2.0)  C(3.0)</text>
+  <text x="464" y="248" class="m">insert X → X(1.5)  (nobody else moves)</text>
+  <text x="464" y="268" class="m">delete → delete id of "C", not index 2</text>
+  <text x="464" y="296" class="s">+ ops commute and are idempotent → any order converges</text>
+  <text x="464" y="314" class="s">+ works offline / peer-to-peer</text>
+  <text x="464" y="332" class="s">− per-character metadata, tombstones grow, needs compaction</text>
+
+  <text x="20" y="384" class="s"><tspan font-weight="600">Around the algorithm:</tspan> WebSocket per editor · op queue batches tiny edits before writing · edit history in an append-only / time-series</text>
+  <text x="20" y="402" class="s">store (version restore = replay/diff) · presence + cursors via pub-sub · comments in a separate store · locks are wrong here:</text>
+  <text x="20" y="420" class="s">they block everyone typing in the same paragraph.</text>
+</svg>

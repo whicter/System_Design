@@ -5,6 +5,11 @@
 * [Introduction](README.md)
 * [Content](CONTENT.md)
 
+## Interview Prep 2026
+
+* [05 · System Design（Staff 级，2026–2027）](05-system-design.md)
+* [05a · SD 速记卡（面试前 10 分钟扫）](05a-sa-course-cheatsheet.md)
+
 ## Design
 
 * [LeetCode / LintCode Design Question](design/leetcode-lintcode-design-question.md)

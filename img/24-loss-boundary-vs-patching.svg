@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 650" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .ok{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .bad{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .warn{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .dia{fill:#FFF8E1;stroke:#E0B000;stroke-width:1.5}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .yn{font-size:12px;font-weight:600}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+  </style>
+  <rect width="920" height="650" fill="#fff"/>
+  <text x="20" y="26" class="h">“Payment Service latency spikes — what do you do?”（下游支付服务延迟飙升，怎么办？）</text>
+  <text x="20" y="46" class="s">Same follow-up, two answers. A stacks components; B decides what loss to accept（同一个追问：A 堆组件，B 先定损失边界）</text>
+
+  <!-- Answer A -->
+  <text x="25" y="84" class="h" style="fill:#D0392B">Answer A — patch stacking（打补丁式）</text>
+  <rect x="25" y="96" width="300" height="46" rx="8" class="warn"/>
+  <text x="175" y="115" text-anchor="middle" class="b">+ retry ×2 with backoff</text>
+  <text x="175" y="132" text-anchor="middle" class="s">worst case 3× attempts（尝试次数变 3 倍）</text>
+  <path d="M175,142 L175,154" class="arr"/>
+  <rect x="25" y="156" width="300" height="46" rx="8" class="warn"/>
+  <text x="175" y="175" text-anchor="middle" class="b">+ async retry queue + DLQ</text>
+  <text x="175" y="192" text-anchor="middle" class="s">breaks read-your-writes（读己之写被打破）</text>
+  <path d="M175,202 L175,214" class="arr"/>
+  <rect x="25" y="216" width="300" height="46" rx="8" class="warn"/>
+  <text x="175" y="235" text-anchor="middle" class="b">+ circuit breaker + fallback</text>
+  <text x="175" y="252" text-anchor="middle" class="s">more states to debug on call（排障面更大）</text>
+  <path d="M175,262 L175,274" class="arr"/>
+  <rect x="25" y="276" width="300" height="46" rx="8" class="warn"/>
+  <text x="175" y="295" text-anchor="middle" class="b">+ client state machine changes</text>
+  <text x="175" y="312" text-anchor="middle" class="s">support tickets from delayed status（状态延迟客诉）</text>
+  <path d="M175,322 L175,340" class="arr"/>
+  <rect x="25" y="342" width="300" height="60" rx="8" class="bad"/>
+  <text x="175" y="365" text-anchor="middle" class="b">new failure modes, no decision made</text>
+  <text x="175" y="384" text-anchor="middle" class="s">引入新故障模式，却没说牺牲什么 → 记为 L4</text>
+
+  <!-- Answer B -->
+  <text x="365" y="84" class="h" style="fill:#2E8B57">Answer B — lock the loss boundary（锁定损失边界）</text>
+  <polygon points="630,96 765,136 630,176 495,136" class="dia"/>
+  <text x="630" y="132" text-anchor="middle" class="b">submitted to provider?</text>
+  <text x="630" y="149" text-anchor="middle" class="s">请求已经发给支付方了？</text>
+
+  <path d="M495,136 L480,136 L480,198" class="arr"/>
+  <text x="440" y="130" class="yn" style="fill:#3B6FD8">no 否</text>
+  <rect x="365" y="200" width="230" height="52" rx="8" class="box"/>
+  <text x="480" y="221" text-anchor="middle" class="b">fail fast before submit</text>
+  <text x="480" y="239" text-anchor="middle" class="s">未提交：直接失败，提示稍后再试</text>
+  <path d="M480,252 L480,272" class="arr"/>
+  <polygon points="480,274 595,312 480,350 365,312" class="dia"/>
+  <text x="480" y="308" text-anchor="middle" class="b">within SLO / error budget?</text>
+  <text x="480" y="325" text-anchor="middle" class="s">失败率在 SLO 预算内？</text>
+  <path d="M480,350 L480,380" class="arr"/>
+  <text x="488" y="370" class="yn" style="fill:#2E8B57">yes 是</text>
+  <rect x="365" y="382" width="230" height="56" rx="8" class="ok"/>
+  <text x="480" y="404" text-anchor="middle" class="b">accept the loss, add nothing</text>
+  <text x="480" y="423" text-anchor="middle" class="s">接受损失，不加组件，说出复查信号</text>
+  <path d="M595,312 L615,312 L615,410 L638,410" class="arr"/>
+  <text x="598" y="304" class="yn" style="fill:#D0392B">no 否</text>
+  <rect x="640" y="382" width="260" height="56" rx="8" class="ok"/>
+  <text x="770" y="404" text-anchor="middle" class="b">add only the cheapest control</text>
+  <text x="770" y="423" text-anchor="middle" class="s">retry budget（重试预算）, one layer, jitter</text>
+
+  <path d="M765,136 L770,136 L770,198" class="arr"/>
+  <text x="778" y="176" class="yn" style="fill:#E08A00">yes 是</text>
+  <rect x="640" y="200" width="260" height="60" rx="8" class="warn"/>
+  <text x="770" y="220" text-anchor="middle" class="b">timeout = unknown outcome</text>
+  <text x="770" y="237" text-anchor="middle" class="s">status query · callback · reconcile</text>
+  <text x="770" y="252" text-anchor="middle" class="s">超时＝结果未知：查状态、等回调、对账</text>
+  <path d="M770,260 L770,282" class="arr"/>
+  <rect x="640" y="284" width="260" height="52" rx="8" class="warn"/>
+  <text x="770" y="304" text-anchor="middle" class="b">retry only with the same key</text>
+  <text x="770" y="322" text-anchor="middle" class="s">同一幂等键（idempotency key），防重复扣款</text>
+
+  <!-- bottom band -->
+  <rect x="14" y="470" width="892" height="164" rx="8" style="fill:#FFF8E1;stroke:#E0B000"/>
+  <text x="28" y="494" class="b">Pick the cheapest poison（三颗毒药挑最便宜的）: UX loss（体验受损） · infra bill（账单翻倍） · operational burden（运维负担）</text>
+  <text x="28" y="520" class="s">Say it: “I’m deliberately not adding a retry queue here. The cost is that roughly 0.5% of requests fail once and the user retries;</text>
+  <text x="28" y="537" class="s">what it saves is a second state machine for on-call. If that rate breaks our SLO, the first thing I’d add is a retry budget, not a queue.”</text>
+  <text x="28" y="562" class="s">• 0.5% is an assumption — name the data that would change it（0.5% 是假设，要说出什么数据会推翻它，例如失败的是不是高价值订单）</text>
+  <text x="28" y="582" class="s">• “fail fast” still needs an overload signal: a timeout, a concurrency limit or a breaker（判断“下游过载”本身就要一个信号）</text>
+  <text x="28" y="602" class="s">• retry amplification multiplies per layer: 3 attempts × 3 layers = 27 calls at the bottom（每层重试会相乘）</text>
+  <text x="28" y="622" class="s">• B is not “never retry”: it is “add the one control the numbers justify, and say what you are not adding”（不是不重试，是只加数字支持的那一个）</text>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .card{fill:#FAFAFA;stroke:#ccc}
+    .on{fill:#59B37B}
+    .off{fill:#fff;stroke:#bbb;stroke-dasharray:3 2}
+    .dat{fill:#5B8DEF}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+  </style>
+  <rect width="880" height="400" fill="#fff"/>
+  <text x="20" y="26" class="h">Region-level DR: pick the simplest tier that provably meets RTO / RPO</text>
+  <text x="20" y="46" class="s">Multi-AZ is NOT region DR. Retries/idempotency protect requests, they don't create a recoverable copy elsewhere.</text>
+
+  <!-- 4 cards, w=200 gap=12 x0=20 -->
+  <g>
+    <rect x="20" y="64" width="200" height="200" rx="10" class="card"/>
+    <text x="120" y="88" text-anchor="middle" class="b">Backup &amp; restore</text>
+    <text x="120" y="106" text-anchor="middle" class="s">RTO hours · RPO hours</text>
+    <text x="36" y="134" class="s">Secondary region:</text>
+    <rect x="36" y="144" width="40" height="24" rx="4" class="off"/><rect x="82" y="144" width="40" height="24" rx="4" class="off"/><rect x="128" y="144" width="40" height="24" rx="4" class="off"/>
+    <rect x="36" y="176" width="132" height="20" rx="4" class="dat" opacity="0.45"/>
+    <text x="36" y="216" class="s">only backups + IaC;</text>
+    <text x="36" y="232" class="s">rebuild after failure</text>
+  </g>
+  <g>
+    <rect x="232" y="64" width="200" height="200" rx="10" class="card"/>
+    <text x="332" y="88" text-anchor="middle" class="b">Pilot light</text>
+    <text x="332" y="106" text-anchor="middle" class="s">RTO tens of min · RPO min</text>
+    <text x="248" y="134" class="s">Secondary region:</text>
+    <rect x="248" y="144" width="40" height="24" rx="4" class="off"/><rect x="294" y="144" width="40" height="24" rx="4" class="off"/><rect x="340" y="144" width="40" height="24" rx="4" class="off"/>
+    <rect x="248" y="176" width="132" height="20" rx="4" class="dat"/>
+    <text x="248" y="216" class="s">data replicating live;</text>
+    <text x="248" y="232" class="s">compute started on failover</text>
+  </g>
+  <g>
+    <rect x="444" y="64" width="200" height="200" rx="10" class="card"/>
+    <text x="544" y="88" text-anchor="middle" class="b">Warm standby</text>
+    <text x="544" y="106" text-anchor="middle" class="s">RTO minutes · RPO sec–min</text>
+    <text x="460" y="134" class="s">Secondary region:</text>
+    <rect x="460" y="144" width="40" height="24" rx="4" class="on"/><rect x="506" y="144" width="40" height="24" rx="4" class="off"/><rect x="552" y="144" width="40" height="24" rx="4" class="off"/>
+    <rect x="460" y="176" width="132" height="20" rx="4" class="dat"/>
+    <text x="460" y="216" class="s">small full copy running;</text>
+    <text x="460" y="232" class="s">scale up on failover</text>
+  </g>
+  <g>
+    <rect x="656" y="64" width="200" height="200" rx="10" class="card"/>
+    <text x="756" y="88" text-anchor="middle" class="b">Active-active</text>
+    <text x="756" y="106" text-anchor="middle" class="s">RTO ≈ 0 · RPO ≈ 0</text>
+    <text x="672" y="134" class="s">Secondary region:</text>
+    <rect x="672" y="144" width="40" height="24" rx="4" class="on"/><rect x="718" y="144" width="40" height="24" rx="4" class="on"/><rect x="764" y="144" width="40" height="24" rx="4" class="on"/>
+    <rect x="672" y="176" width="132" height="20" rx="4" class="dat"/>
+    <text x="672" y="216" class="s">serves prod traffic;</text>
+    <text x="672" y="232" class="s">conflicts + data ownership</text>
+  </g>
+
+  <path d="M30,292 L846,292" class="arr"/>
+  <text x="438" y="284" text-anchor="middle" class="s">more running infrastructure · cost · replication complexity · drift risk →</text>
+
+  <text x="20" y="324" class="b">Ask first</text>
+  <text x="90" y="324" class="s">How long can checkout be down? How much order data can we lose? Contract/regulatory promise (take the strictest)?</text>
+  <text x="90" y="342" class="s">Can we degrade to browse-only while checkout is paused?</text>
+  <text x="20" y="372" class="b">Then prove it</text>
+  <text x="110" y="372" class="s">Explicit failover decision owner + signals · verify reads, writes, payments, duplicate-order guard before reopening ·</text>
+  <text x="110" y="390" class="s">rehearse failback too (another reconciliation boundary). An untested runbook is not a DR plan.</text>
+  <rect x="650" y="270" width="14" height="10" class="on"/><text x="668" y="279" class="s">compute running</text>
+  <rect x="772" y="270" width="14" height="10" class="dat"/><text x="790" y="279" class="s">data copy</text>
+</svg>

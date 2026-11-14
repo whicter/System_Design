@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D0392B"/></marker>
+  </defs>
+  <style>
+    .bad{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .les{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .t{font-size:12.5px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .ra{stroke:#D0392B;stroke-width:1.5;fill:none;marker-end:url(#r)}
+  </style>
+  <rect width="900" height="470" fill="#fff"/>
+  <text x="20" y="26" class="h">Three real outages, one pattern: a routine change → hidden shared dependency → cascade → recovery tools also down</text>
+
+  <!-- row FB -->
+  <text x="20" y="60" class="b">Facebook 2021 (~6 h)</text>
+  <rect x="20" y="70" width="150" height="46" rx="6" class="bad"/><text x="95" y="90" text-anchor="middle" class="t">maintenance command</text><text x="95" y="106" text-anchor="middle" class="t">cuts backbone</text>
+  <rect x="200" y="70" width="150" height="46" rx="6" class="bad"/><text x="275" y="90" text-anchor="middle" class="t">audit tool misses</text><text x="275" y="106" text-anchor="middle" class="t">the bug</text>
+  <rect x="380" y="70" width="150" height="46" rx="6" class="bad"/><text x="455" y="90" text-anchor="middle" class="t">DNS withdraws routes</text><text x="455" y="106" text-anchor="middle" class="t">(fail-safe misfires)</text>
+  <rect x="560" y="70" width="150" height="46" rx="6" class="bad"/><text x="635" y="90" text-anchor="middle" class="t">whole domain</text><text x="635" y="106" text-anchor="middle" class="t">unresolvable</text>
+  <rect x="740" y="70" width="140" height="46" rx="6" class="bad"/><text x="810" y="90" text-anchor="middle" class="t">remote access gone</text><text x="810" y="106" text-anchor="middle" class="t">→ on-site fix</text>
+  <path d="M170,93 L196,93" class="ra"/><path d="M350,93 L376,93" class="ra"/><path d="M530,93 L556,93" class="ra"/><path d="M710,93 L736,93" class="ra"/>
+
+  <!-- row Kinesis -->
+  <text x="20" y="150" class="b">AWS Kinesis 2020</text>
+  <rect x="20" y="160" width="150" height="46" rx="6" class="bad"/><text x="95" y="180" text-anchor="middle" class="t">add front-end</text><text x="95" y="196" text-anchor="middle" class="t">capacity</text>
+  <rect x="200" y="160" width="150" height="46" rx="6" class="bad"/><text x="275" y="180" text-anchor="middle" class="t">OS thread limit hit</text><text x="275" y="196" text-anchor="middle" class="t">→ no shard map</text>
+  <rect x="380" y="160" width="150" height="46" rx="6" class="bad"/><text x="455" y="180" text-anchor="middle" class="t">Cognito, CloudWatch</text><text x="455" y="196" text-anchor="middle" class="t">depend on Kinesis</text>
+  <rect x="560" y="160" width="150" height="46" rx="6" class="bad"/><text x="635" y="180" text-anchor="middle" class="t">autoscaling, Lambda</text><text x="635" y="196" text-anchor="middle" class="t">depend on metrics</text>
+  <rect x="740" y="160" width="140" height="46" rx="6" class="bad"/><text x="810" y="180" text-anchor="middle" class="t">status page depends</text><text x="810" y="196" text-anchor="middle" class="t">on Cognito</text>
+  <path d="M170,183 L196,183" class="ra"/><path d="M350,183 L376,183" class="ra"/><path d="M530,183 L556,183" class="ra"/><path d="M710,183 L736,183" class="ra"/>
+
+  <!-- row AWS 2021 -->
+  <text x="20" y="240" class="b">AWS us-east-1 2021 (~8 h)</text>
+  <rect x="20" y="250" width="150" height="46" rx="6" class="bad"/><text x="95" y="270" text-anchor="middle" class="t">automated capacity</text><text x="95" y="286" text-anchor="middle" class="t">change, internal net</text>
+  <rect x="200" y="250" width="150" height="46" rx="6" class="bad"/><text x="275" y="270" text-anchor="middle" class="t">connection surge</text><text x="275" y="286" text-anchor="middle" class="t">congests link devices</text>
+  <rect x="380" y="250" width="150" height="46" rx="6" class="bad"/><text x="455" y="270" text-anchor="middle" class="t">retry storm keeps</text><text x="455" y="286" text-anchor="middle" class="t">it congested</text>
+  <rect x="560" y="250" width="150" height="46" rx="6" class="bad"/><text x="635" y="270" text-anchor="middle" class="t">control plane APIs</text><text x="635" y="286" text-anchor="middle" class="t">fail; data plane OK</text>
+  <rect x="740" y="250" width="140" height="46" rx="6" class="bad"/><text x="810" y="270" text-anchor="middle" class="t">monitoring blind</text><text x="810" y="286" text-anchor="middle" class="t">→ diagnose by logs</text>
+  <path d="M170,273 L196,273" class="ra"/><path d="M350,273 L376,273" class="ra"/><path d="M530,273 L556,273" class="ra"/><path d="M710,273 L736,273" class="ra"/>
+
+  <!-- lessons -->
+  <rect x="20" y="318" width="860" height="140" rx="8" class="les"/>
+  <text x="34" y="340" class="b">Design lessons you can say in an interview</text>
+  <text x="34" y="362" class="s">1. Treat config pushes and capacity changes as deploys: staged rollout, canary, automatic halt — automation fails fast and wide.</text>
+  <text x="34" y="382" class="s">2. Map hidden dependencies: monitoring, status page, auth and break-glass access must not depend on the system they watch.</text>
+  <text x="34" y="402" class="s">3. Separate control plane from data plane: running workloads should keep serving when the management APIs are down.</text>
+  <text x="34" y="422" class="s">4. Bound retries and shed load (retry storms prolong outages); bootstrap from an authoritative store, not from peers.</text>
+  <text x="34" y="442" class="s">5. Plan the cold start: bring capacity back gradually; rehearse "all remote tools are down" drills.</text>
+</svg>

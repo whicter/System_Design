@@ -7,7 +7,7 @@
 - % n 的方法是一种最简单的 Hash 算法  
 	* 但是这种方法在 n 变成 n+1 的时候，每个 key % n和 % (n+1) 结果基本上都不一样 
 	*  这个 Hash 算法可以称之为:不一致 hash
-![](/assets/Simple_hashing_rehashing.png)
+![](../../assets/Simple_hashing_rehashing.png)
   
 ## Consistant Hashing
 
@@ -18,7 +18,7 @@
 - 新加一台机器的时候，在表中选择一个位置插入，匀走相邻两台机器的一部分数据
 	* 比如n从2变化到3，只有1/3的数据移动
 
-![](/assets/improved_simple_hashing.png)
+![](../../assets/improved_simple_hashing.png)
 
 - 缺陷1 数据分布不均匀 因为算法是“将数据最多的相邻两台机器均匀分为三台”
 	* 比如，3台机器变4台机器时，无法做到4台机器均匀分布
@@ -34,7 +34,7 @@
 	* 机器取MAC地址，或者机器固定名字如database01，或者固定的 IP 地址  
 - 每个数据放在哪台机器上，取决于在Consistent Hash Ring 上顺时针碰到的 下一个机器节点
 
-![](/assets/consistent_hashing.png)
+![](../../assets/consistent_hashing.png)
 ## Virtual Nodes
 -   一个实体机器(Real node) 对应若干虚拟机器(Virtual Node)
 	* 通常是 1000 个  
@@ -45,4 +45,4 @@
 	* 支持快􏰀的查询比某个数大的最小数 
 	* 即顺时针碰到的下一个 virtual nodes
 
-![](/assets/virtual_nodes.png)
+![](../../assets/virtual_nodes.png)

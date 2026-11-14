@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .data{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .hot{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .dash{stroke:#E08A00;stroke-width:1.5;fill:none;marker-end:url(#a);stroke-dasharray:5 4}
+    .lane{fill:#FAFAFA;stroke:#ddd}
+  </style>
+  <rect width="880" height="400" fill="#fff"/>
+  <text x="20" y="26" class="h">News feed: push for normal authors, pull for celebrities, merge at read time</text>
+
+  <rect x="10" y="40" width="860" height="150" rx="10" class="lane"/>
+  <text x="24" y="60" class="b">Write (post)</text>
+  <rect x="24" y="76" width="130" height="56" rx="8" class="box"/>
+  <text x="89" y="100" text-anchor="middle" class="b">Author posts</text>
+  <rect x="190" y="76" width="150" height="56" rx="8" class="data"/>
+  <text x="265" y="100" text-anchor="middle" class="b">Post store</text>
+  <text x="265" y="118" text-anchor="middle" class="s">by author_id</text>
+  <rect x="376" y="76" width="160" height="56" rx="8" class="box"/>
+  <text x="456" y="100" text-anchor="middle" class="b">Fan-out workers</text>
+  <text x="456" y="118" text-anchor="middle" class="s">async, via queue</text>
+  <rect x="572" y="66" width="290" height="40" rx="8" class="data"/>
+  <text x="717" y="91" text-anchor="middle" class="t">normal author → push post_id into</text>
+  <rect x="572" y="112" width="290" height="40" rx="8" class="hot"/>
+  <text x="717" y="137" text-anchor="middle" class="t">celebrity (&gt; ~1M followers) → skip push</text>
+  <path d="M154,104 L186,104" class="arr"/>
+  <path d="M340,104 L372,104" class="arr"/>
+  <path d="M536,96 L568,86" class="arr"/>
+  <path d="M536,112 L568,130" class="arr"/>
+  <text x="190" y="176" class="s">push only into ACTIVE followers' feed caches; inactive users get their feed built on read</text>
+
+  <rect x="10" y="206" width="860" height="130" rx="10" class="lane"/>
+  <text x="24" y="226" class="b">Read (open app)</text>
+  <rect x="24" y="242" width="130" height="56" rx="8" class="box"/>
+  <text x="89" y="266" text-anchor="middle" class="b">Feed service</text>
+  <rect x="190" y="242" width="170" height="56" rx="8" class="data"/>
+  <text x="275" y="266" text-anchor="middle" class="b">Feed cache</text>
+  <text x="275" y="284" text-anchor="middle" class="s">user → [post_id…]</text>
+  <rect x="396" y="242" width="170" height="56" rx="8" class="hot"/>
+  <text x="481" y="266" text-anchor="middle" class="b">+ celebrity posts</text>
+  <text x="481" y="284" text-anchor="middle" class="s">pulled now, merged</text>
+  <rect x="602" y="242" width="120" height="56" rx="8" class="box"/>
+  <text x="662" y="266" text-anchor="middle" class="b">Rank</text>
+  <text x="662" y="284" text-anchor="middle" class="s">candidates → top N</text>
+  <rect x="752" y="242" width="110" height="56" rx="8" class="box"/>
+  <text x="807" y="266" text-anchor="middle" class="b">Hydrate</text>
+  <text x="807" y="284" text-anchor="middle" class="s">post/user cache</text>
+  <path d="M154,270 L186,270" class="arr"/>
+  <path d="M360,270 L392,270" class="arr"/>
+  <path d="M566,270 L598,270" class="arr"/>
+  <path d="M722,270 L748,270" class="arr"/>
+  <path d="M717,152 L717,200 L481,200 L481,238" class="dash"/>
+  <text x="24" y="322" class="s">cursor = last post_id (time-sortable ID), never offset · media via CDN · counts from sharded counters</text>
+
+  <text x="20" y="362" class="s"><tspan font-weight="600">Why hybrid:</tspan> push makes reads O(1) but a celebrity post = millions of writes; pull is cheap to write but slow to read.</text>
+  <text x="20" y="380" class="s">Hybrid isolates the amplifying workload — same idea as giving bulk re-verification its own consumer group.</text>
+</svg>

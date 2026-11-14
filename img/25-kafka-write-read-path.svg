@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 610" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .ok{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .bad{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .dia{fill:#FFF8E1;stroke:#E0B000;stroke-width:1.5}
+    .grp{fill:#FAFAFA;stroke:#bbb;stroke-dasharray:4 3}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .m{font-size:11.5px;fill:#1f2328;font-family:Menlo, monospace}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .yn{font-size:12px;font-weight:600}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .fetch{stroke:#7B5CC4;stroke-width:1.5;fill:none;marker-end:url(#a);stroke-dasharray:5 4}
+  </style>
+  <rect width="920" height="610" fill="#fff"/>
+  <text x="20" y="26" class="h">Kafka write path（写入路径）and read path（读取路径）for one partition（一个分区）</text>
+
+  <!-- producer -->
+  <rect x="20" y="56" width="190" height="96" rx="8" class="box"/>
+  <text x="115" y="77" text-anchor="middle" class="b">Producer（生产者）</text>
+  <text x="115" y="96" text-anchor="middle" class="m">acks=all</text>
+  <text x="115" y="114" text-anchor="middle" class="s">idempotence: PID + seq</text>
+  <text x="115" y="130" text-anchor="middle" class="s">（幂等：按序号去重）</text>
+  <text x="115" y="146" text-anchor="middle" class="s">key → hash → partition</text>
+  <path d="M210,104 L258,104" class="arr"/>
+
+  <!-- leader -->
+  <rect x="260" y="48" width="370" height="148" rx="10" class="grp"/>
+  <text x="272" y="68" class="b">Broker 1 — leader of partition 0（分区主副本）</text>
+  <g>
+    <rect x="276" y="84" width="38" height="36" style="fill:#D6F0DF;stroke:#2E8B57"/>
+    <rect x="314" y="84" width="38" height="36" style="fill:#D6F0DF;stroke:#2E8B57"/>
+    <rect x="352" y="84" width="38" height="36" style="fill:#D6F0DF;stroke:#2E8B57"/>
+    <rect x="390" y="84" width="38" height="36" style="fill:#D6F0DF;stroke:#2E8B57"/>
+    <rect x="428" y="84" width="38" height="36" style="fill:#D6F0DF;stroke:#2E8B57"/>
+    <rect x="466" y="84" width="38" height="36" style="fill:#FFE7C2;stroke:#E08A00"/>
+    <rect x="504" y="84" width="38" height="36" style="fill:#FFE7C2;stroke:#E08A00"/>
+    <rect x="542" y="84" width="38" height="36" style="fill:#FFE7C2;stroke:#E08A00"/>
+    <text x="295" y="107" text-anchor="middle" class="m">0</text>
+    <text x="333" y="107" text-anchor="middle" class="m">1</text>
+    <text x="371" y="107" text-anchor="middle" class="m">2</text>
+    <text x="409" y="107" text-anchor="middle" class="m">3</text>
+    <text x="447" y="107" text-anchor="middle" class="m">4</text>
+    <text x="485" y="107" text-anchor="middle" class="m">5</text>
+    <text x="523" y="107" text-anchor="middle" class="m">6</text>
+    <text x="561" y="107" text-anchor="middle" class="m">7</text>
+  </g>
+  <path d="M466,80 L466,128" style="stroke:#2E8B57;stroke-width:2.5"/>
+  <path d="M580,80 L580,128" style="stroke:#E08A00;stroke-width:2.5"/>
+  <text x="276" y="146" class="s">offsets 0–4 on all ISR → readable（可读）</text>
+  <text x="276" y="164" class="s"><tspan style="fill:#2E8B57;font-weight:600">HW = 5</tspan>（高水位） · <tspan style="fill:#E08A00;font-weight:600">LEO = 8</tspan>（日志末尾）</text>
+  <text x="276" y="184" class="s">append-only on page cache（顺序追加写）</text>
+
+  <!-- followers -->
+  <rect x="260" y="222" width="175" height="54" rx="8" class="box"/>
+  <text x="347" y="243" text-anchor="middle" class="b">Broker 2 follower</text>
+  <text x="347" y="262" text-anchor="middle" class="s">has up to offset 7, in ISR</text>
+  <rect x="455" y="222" width="175" height="54" rx="8" class="box"/>
+  <text x="542" y="243" text-anchor="middle" class="b">Broker 3 follower</text>
+  <text x="542" y="262" text-anchor="middle" class="s">has up to offset 4, in ISR</text>
+  <path d="M347,222 L347,200" class="fetch"/>
+  <path d="M542,222 L542,200" class="fetch"/>
+  <text x="356" y="214" class="s" style="fill:#7B5CC4">fetch（拉取复制）</text>
+
+  <path d="M445,276 L445,300" class="arr"/>
+  <polygon points="445,302 595,342 445,382 295,342" class="dia"/>
+  <text x="445" y="338" text-anchor="middle" class="b">ISR size ≥ min.insync.replicas ?</text>
+  <text x="445" y="355" text-anchor="middle" class="s">同步副本够不够（例：RF=3, min=2）</text>
+
+  <path d="M445,382 L445,410" class="arr"/>
+  <text x="453" y="402" class="yn" style="fill:#2E8B57">yes 是</text>
+  <rect x="330" y="412" width="230" height="56" rx="8" class="ok"/>
+  <text x="445" y="434" text-anchor="middle" class="b">ack once every ISR has it</text>
+  <text x="445" y="453" text-anchor="middle" class="s">所有同步副本写入后才确认</text>
+
+  <path d="M295,342 L130,342 L130,410" class="arr"/>
+  <text x="200" y="334" class="yn" style="fill:#D0392B">no 否</text>
+  <rect x="20" y="412" width="220" height="70" rx="8" class="bad"/>
+  <text x="130" y="433" text-anchor="middle" class="b">NotEnoughReplicas</text>
+  <text x="130" y="452" text-anchor="middle" class="s">refuse the write（拒绝写入）:</text>
+  <text x="130" y="469" text-anchor="middle" class="s">durability over availability</text>
+
+  <!-- consumer side -->
+  <rect x="650" y="48" width="252" height="176" rx="10" class="grp"/>
+  <text x="662" y="68" class="b">Consumer group（消费组）</text>
+  <rect x="664" y="80" width="224" height="40" rx="8" class="box"/>
+  <text x="776" y="105" text-anchor="middle" class="b">C1 ← partitions 0, 1</text>
+  <rect x="664" y="128" width="224" height="40" rx="8" class="box"/>
+  <text x="776" y="153" text-anchor="middle" class="b">C2 ← partition 2</text>
+  <text x="664" y="190" class="s">one partition → at most one consumer</text>
+  <text x="664" y="207" class="s">（一个分区组内只给一个消费者）</text>
+  <path d="M584,102 L662,102" class="arr"/>
+  <text x="586" y="138" class="s">read &lt; HW</text>
+
+  <path d="M776,224 L776,250" class="arr"/>
+  <rect x="650" y="252" width="252" height="70" rx="8" class="ok"/>
+  <text x="776" y="273" text-anchor="middle" class="b">process, then commit offset</text>
+  <text x="776" y="292" text-anchor="middle" class="s">先处理再提交 → at-least-once</text>
+  <text x="776" y="309" text-anchor="middle" class="s">重复要靠业务幂等（idempotency）</text>
+  <path d="M776,322 L776,348" class="arr"/>
+  <rect x="650" y="350" width="252" height="56" rx="8" class="dia"/>
+  <text x="776" y="372" text-anchor="middle" class="b">lag = LEO − committed offset</text>
+  <text x="776" y="391" text-anchor="middle" class="s">消费延迟 / 积压（consumer lag）</text>
+
+  <!-- notes -->
+  <rect x="14" y="500" width="892" height="100" rx="8" style="fill:#FFF8E1;stroke:#E0B000"/>
+  <text x="28" y="522" class="s">• Durability comes from replication, not per-message fsync（不丢靠多副本，不靠每条刷盘）. Since Kafka 3.0 the producer defaults to acks=all + idempotence.</text>
+  <text x="28" y="544" class="s">• Zero-copy（零拷贝, sendfile）speeds up the read path: page cache → socket. It does not apply on the write path, and TLS turns it off.</text>
+  <text x="28" y="566" class="s">• unclean.leader.election.enable=false: an out-of-sync replica never becomes leader（不让落后副本当主，宁可不可用也不丢数据）.</text>
+  <text x="28" y="588" class="s">• Adding partitions changes hash(key) % N → per-key ordering breaks for in-flight keys（加分区会打乱按 key 的顺序）.</text>
+</svg>

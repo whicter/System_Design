@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .sh{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .data{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .bad{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+  </style>
+  <rect width="880" height="400" fill="#fff"/>
+  <text x="20" y="26" class="h">Heavy hitters: a celebrity post's like counter is one hot key — split it into shards</text>
+
+  <rect x="20" y="50" width="200" height="70" rx="8" class="bad"/>
+  <text x="120" y="76" text-anchor="middle" class="b">Single counter row</text>
+  <text x="120" y="96" text-anchor="middle" class="s">millions of +1 on one key</text>
+  <text x="120" y="112" text-anchor="middle" class="s">→ lock contention, hot node</text>
+
+  <rect x="20" y="170" width="140" height="56" rx="8" class="box"/>
+  <text x="90" y="194" text-anchor="middle" class="b">Likes (writes)</text>
+  <text x="90" y="212" text-anchor="middle" class="s">pick a shard</text>
+
+  <rect x="230" y="140" width="110" height="36" rx="6" class="sh"/><text x="285" y="163" text-anchor="middle" class="t">shard 1: 3,201</text>
+  <rect x="230" y="182" width="110" height="36" rx="6" class="sh"/><text x="285" y="205" text-anchor="middle" class="t">shard 2: 3,177</text>
+  <rect x="230" y="224" width="110" height="36" rx="6" class="sh"/><text x="285" y="247" text-anchor="middle" class="t">… shard N</text>
+  <path d="M160,190 L226,158" class="arr"/>
+  <path d="M160,198 L226,200" class="arr"/>
+  <path d="M160,206 L226,242" class="arr"/>
+
+  <rect x="400" y="170" width="170" height="56" rx="8" class="box"/>
+  <text x="485" y="194" text-anchor="middle" class="b">Periodic aggregator</text>
+  <text x="485" y="212" text-anchor="middle" class="s">sum shards every few s</text>
+  <path d="M340,158 L396,190" class="arr"/>
+  <path d="M340,200 L396,200" class="arr"/>
+  <path d="M340,242 L396,210" class="arr"/>
+
+  <rect x="620" y="170" width="230" height="56" rx="8" class="data"/>
+  <text x="735" y="194" text-anchor="middle" class="b">Cached total</text>
+  <text x="735" y="212" text-anchor="middle" class="s">what readers see (slightly stale)</text>
+  <path d="M570,198 L616,198" class="arr"/>
+
+  <text x="20" y="290" class="b">Design knobs</text>
+  <text x="20" y="312" class="s">• <tspan font-weight="600">How many shards:</tspan> estimate from expected writes (author follower count), resize with load; more shards = cheaper writes, costlier reads.</text>
+  <text x="20" y="332" class="s">• <tspan font-weight="600">Which shard:</tspan> random or round-robin is simple; metrics-based routing avoids loaded nodes.</text>
+  <text x="20" y="352" class="s">• <tspan font-weight="600">Consistency:</tspan> eventual — fine for likes/views, NOT for balances or inventory (use a real transaction there).</text>
+  <text x="20" y="372" class="s">• <tspan font-weight="600">Top-K trends:</tspan> per-region counters per hashtag over a sliding window; merge local top-K lists into a global one.</text>
+</svg>

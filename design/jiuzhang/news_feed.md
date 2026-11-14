@@ -42,7 +42,7 @@
 	* 实时计算
 	* N次DB Reads非常慢 且发生在用户获得News Feed的请求过程中
 
-![](/assets/pull原理.png)
+![](../../assets/pull原理.png)
 
 ## Push Mode
 -  算法  
@@ -73,6 +73,6 @@
 			* Follower 数目可能很大
 	
 					
-![](/assets/News_Feed_Table.jpg)
+![](../../assets/News_Feed_Table.jpg)
 
-![](/assets/push原理.png)
+![](../../assets/push原理.png)

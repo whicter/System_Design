@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 480" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .data{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .trust{stroke:#D0392B;stroke-width:2;stroke-dasharray:7 5}
+    .fd{fill:none;stroke:#E08A00;stroke-width:1.8;stroke-dasharray:5 4}
+    .region{fill:#FAFAFA;stroke:#999;stroke-width:1.5;stroke-dasharray:3 3}
+  </style>
+  <rect width="820" height="480" fill="#fff"/>
+  <text x="20" y="26" class="h">Baseline diagram: draw boundaries before services</text>
+
+  <!-- region -->
+  <rect x="190" y="44" width="615" height="380" rx="10" class="region"/>
+  <text x="200" y="62" class="s">Region (one failure domain for a regional outage)</text>
+
+  <!-- client -->
+  <rect x="20" y="215" width="120" height="56" rx="8" class="box"/>
+  <text x="80" y="239" text-anchor="middle" class="t">Client</text>
+  <text x="80" y="257" text-anchor="middle" class="s">browser / app</text>
+
+  <!-- static path -->
+  <rect x="210" y="80" width="150" height="56" rx="8" class="data"/>
+  <text x="285" y="103" text-anchor="middle" class="t">CDN + object store</text>
+  <text x="285" y="121" text-anchor="middle" class="s">static assets path</text>
+  <path d="M100,215 L100,108 L206,108" class="arr"/>
+
+  <!-- trust boundary 1 -->
+  <line x1="168" y1="70" x2="168" y2="430" class="trust"/>
+  <text x="160" y="448" class="s" style="fill:#D0392B" text-anchor="middle">trust boundary ①</text>
+  <text x="160" y="463" class="s" text-anchor="middle">internet → our edge</text>
+
+  <!-- ingress -->
+  <rect x="210" y="215" width="120" height="56" rx="8" class="box"/>
+  <text x="270" y="239" text-anchor="middle" class="t">Ingress / LB</text>
+  <text x="270" y="257" text-anchor="middle" class="s">authn, TLS, WAF</text>
+  <path d="M140,243 L206,243" class="arr"/>
+
+  <!-- AZ A -->
+  <rect x="370" y="80" width="190" height="140" rx="8" class="fd"/>
+  <text x="380" y="98" class="s" style="fill:#B36B00">AZ-A (failure domain)</text>
+  <rect x="390" y="120" width="150" height="56" rx="8" class="box"/>
+  <text x="465" y="143" text-anchor="middle" class="t">Stateless API</text>
+  <text x="465" y="161" text-anchor="middle" class="s">no local session</text>
+  <!-- AZ B -->
+  <rect x="370" y="265" width="190" height="140" rx="8" class="fd"/>
+  <text x="380" y="283" class="s" style="fill:#B36B00">AZ-B (failure domain)</text>
+  <rect x="390" y="305" width="150" height="56" rx="8" class="box"/>
+  <text x="465" y="328" text-anchor="middle" class="t">Stateless API</text>
+  <text x="465" y="346" text-anchor="middle" class="s">no local session</text>
+
+  <path d="M330,235 L386,152" class="arr"/>
+  <path d="M330,251 L386,330" class="arr"/>
+
+  <!-- trust boundary 2 -->
+  <line x1="590" y1="80" x2="590" y2="410" class="trust"/>
+  <text x="590" y="448" class="s" style="fill:#D0392B" text-anchor="middle">trust boundary ②</text>
+  <text x="590" y="463" class="s" text-anchor="middle">app tier → data tier</text>
+
+  <!-- data -->
+  <rect x="620" y="120" width="170" height="56" rx="8" class="data"/>
+  <text x="705" y="143" text-anchor="middle" class="t">Cache</text>
+  <text x="705" y="161" text-anchor="middle" class="s">rebuildable only</text>
+  <rect x="620" y="230" width="170" height="56" rx="8" class="data"/>
+  <text x="705" y="253" text-anchor="middle" class="t">DB primary</text>
+  <text x="705" y="271" text-anchor="middle" class="s">system of record</text>
+  <rect x="620" y="330" width="170" height="56" rx="8" class="data" stroke-dasharray="4 3"/>
+  <text x="705" y="353" text-anchor="middle" class="t">DB standby</text>
+  <text x="705" y="371" text-anchor="middle" class="s">other AZ (only if verified)</text>
+
+  <path d="M540,148 L616,148" class="arr"/>
+  <path d="M540,160 L616,250" class="arr"/>
+  <path d="M540,333 L616,266" class="arr"/>
+  <path d="M705,286 L705,326" stroke="#2E8B57" stroke-width="1.5" stroke-dasharray="4 3" fill="none" marker-end="url(#a)"/>
+</svg>

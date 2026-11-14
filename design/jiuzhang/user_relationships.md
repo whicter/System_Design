@@ -66,7 +66,7 @@ C --> B --> A
 - 同一个 row_key + column_key 只对应一个 value
 
 
-![](/assets/Cassandra_example1.png)
+![](../../assets/Cassandra_example1.png)
 
 
-![](/assets/Cassandra_example2.png)
+![](../../assets/Cassandra_example2.png)

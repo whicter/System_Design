@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 410" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D0392B"/></marker>
+  </defs>
+  <style>
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .auth{fill:#2E8B57}
+    .pas{fill:#CFE8D8}
+    .gate{fill:#FFF8E1;stroke:#E0B000;stroke-width:1.5}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .ra{stroke:#D0392B;stroke-width:1.8;fill:none;marker-end:url(#r);stroke-dasharray:6 4}
+    .sync{stroke:#3B6FD8;stroke-width:1.5;fill:none;marker-end:url(#a);stroke-dasharray:4 3}
+  </style>
+  <rect width="900" height="410" fill="#fff"/>
+  <text x="20" y="26" class="h">Migration wave 1: the old system stays authoritative until written criteria pass</text>
+
+  <!-- phases header -->
+  <text x="140" y="60" class="s">Foundations</text>
+  <text x="250" y="60" class="s">Data sync</text>
+  <text x="360" y="60" class="s">Rehearse runbook</text>
+  <text x="500" y="60" class="s">Go / no-go</text>
+  <text x="600" y="60" class="s">Cutover</text>
+  <text x="680" y="60" class="s">Rollback window</text>
+  <text x="815" y="60" class="s">Closed</text>
+
+  <!-- lanes -->
+  <text x="20" y="100" class="b">Legacy</text>
+  <rect x="130" y="84" width="470" height="26" rx="4" class="auth"/>
+  <text x="365" y="102" text-anchor="middle" class="s" style="fill:#fff">AUTHORITATIVE</text>
+  <rect x="600" y="84" width="210" height="26" rx="4" class="pas"/>
+  <text x="705" y="102" text-anchor="middle" class="s">standby, receives reverse sync</text>
+
+  <text x="20" y="180" class="b">Target</text>
+  <rect x="130" y="164" width="470" height="26" rx="4" class="pas"/>
+  <text x="365" y="182" text-anchor="middle" class="s">receives sync, read-only for validation</text>
+  <rect x="600" y="164" width="290" height="26" rx="4" class="auth"/>
+  <text x="745" y="182" text-anchor="middle" class="s" style="fill:#fff">AUTHORITATIVE</text>
+
+  <path d="M260,112 L260,160" class="sync"/>
+  <path d="M330,112 L330,160" class="sync"/>
+  <text x="270" y="140" class="s" style="fill:#3B6FD8">old → new</text>
+  <path d="M630,162 L630,114" class="sync"/>
+  <path d="M790,162 L790,114" class="sync"/>
+  <text x="642" y="140" class="s" style="fill:#3B6FD8">new → old (reverse)</text>
+
+  <!-- gate -->
+  <line x1="600" y1="74" x2="600" y2="200" stroke="#E0B000" stroke-width="3"/>
+  <text x="590" y="218" text-anchor="end" class="s">pause writes / queue at edge during switch</text>
+  <line x1="810" y1="74" x2="810" y2="200" stroke="#999" stroke-width="2" stroke-dasharray="3 3"/>
+
+  <!-- criteria -->
+  <rect x="20" y="240" width="420" height="140" rx="8" class="gate"/>
+  <text x="34" y="262" class="b">Cutover criteria (written BEFORE the window)</text>
+  <text x="34" y="284" class="s">• sync lag within threshold</text>
+  <text x="34" y="302" class="s">• order counts + amounts reconcile</text>
+  <text x="34" y="320" class="s">• end-to-end test transactions succeed</text>
+  <text x="34" y="338" class="s">• change owner approved, failed-transaction alerts live</text>
+  <text x="34" y="362" class="s">No reverse sync possible? Keep target read-only until go/no-go.</text>
+
+  <rect x="460" y="240" width="420" height="140" rx="8" fill="#FDECEA" stroke="#D0392B" stroke-width="1.5"/>
+  <text x="474" y="262" class="b" style="fill:#D0392B">Rollback triggers</text>
+  <text x="474" y="284" class="s">• reconciliation fails</text>
+  <text x="474" y="302" class="s">• unexpected sync lag</text>
+  <text x="474" y="320" class="s">• a representative order can't be processed</text>
+  <text x="474" y="338" class="s">• a critical integration is unavailable</text>
+  <text x="474" y="362" class="s">Rollback = stop writes to target, legacy authoritative again.</text>
+  <path d="M700,236 L700,200" class="ra"/>
+</svg>

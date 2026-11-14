@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 430" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .step{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .id{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#444}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .sig{fill:#F6F8FA;stroke:#bbb}
+  </style>
+  <rect width="860" height="430" fill="#fff"/>
+  <text x="20" y="26" class="h">"App can't reach the private DB" — test one boundary at a time, in dependency order</text>
+  <text x="20" y="46" class="s">Passing a layer clears only that layer. Reachability ≠ authorization.</text>
+
+  <!-- 5 steps, w=150 gap=17 -->
+  <g>
+    <rect x="20" y="70" width="150" height="70" rx="8" class="step"/>
+    <text x="95" y="96" text-anchor="middle" class="t">① DNS resolve</text>
+    <text x="95" y="116" text-anchor="middle" class="s">private or public IP?</text>
+    <rect x="187" y="70" width="150" height="70" rx="8" class="step"/>
+    <text x="262" y="96" text-anchor="middle" class="t">② Route + return</text>
+    <text x="262" y="116" text-anchor="middle" class="s">both directions?</text>
+    <rect x="354" y="70" width="150" height="70" rx="8" class="step"/>
+    <text x="429" y="96" text-anchor="middle" class="t">③ Network filter</text>
+    <text x="429" y="116" text-anchor="middle" class="s">SG / ACL / firewall</text>
+    <rect x="521" y="70" width="150" height="70" rx="8" class="id"/>
+    <text x="596" y="96" text-anchor="middle" class="t">④ Workload identity</text>
+    <text x="596" y="116" text-anchor="middle" class="s">authentication</text>
+    <rect x="688" y="70" width="150" height="70" rx="8" class="id"/>
+    <text x="763" y="96" text-anchor="middle" class="t">⑤ DB authorization</text>
+    <text x="763" y="116" text-anchor="middle" class="s">role / table rights</text>
+    <path d="M170,105 L184,105" class="arr"/>
+    <path d="M337,105 L351,105" class="arr"/>
+    <path d="M504,105 L518,105" class="arr"/>
+    <path d="M671,105 L685,105" class="arr"/>
+  </g>
+  <text x="262" y="160" text-anchor="middle" class="s" style="fill:#3B6FD8">— network path (blue) —</text>
+  <text x="680" y="160" text-anchor="middle" class="s" style="fill:#B36B00">— identity &amp; permission (orange) —</text>
+
+  <!-- per-step test -->
+  <text x="20" y="190" class="h">For each step say three things</text>
+  <text x="20" y="212" class="s">1. Hypothesis + which boundary   2. Smallest test that separates it from the next layer   3. What result eliminates it / keeps it alive</text>
+
+  <!-- signals -->
+  <text x="20" y="250" class="h">What the symptom tells you</text>
+  <rect x="20" y="262" width="400" height="34" rx="6" class="sig"/>
+  <text x="32" y="284" class="s"><tspan font-weight="600">Resolves to a public IP</tspan> → ① private DNS zone missing / unlinked</text>
+  <rect x="20" y="302" width="400" height="34" rx="6" class="sig"/>
+  <text x="32" y="324" class="s"><tspan font-weight="600">SYN timeout</tspan> → ②③ still alive (silent drop / no return route)</text>
+  <rect x="20" y="342" width="400" height="34" rx="6" class="sig"/>
+  <text x="32" y="364" class="s"><tspan font-weight="600">TCP reset</tspan> → something actively refused — find who sent it</text>
+  <rect x="438" y="262" width="400" height="34" rx="6" class="sig"/>
+  <text x="450" y="284" class="s"><tspan font-weight="600">Authentication error</tspan> → network is fine, look at ④</text>
+  <rect x="438" y="302" width="400" height="34" rx="6" class="sig"/>
+  <text x="450" y="324" class="s"><tspan font-weight="600">Permission denied</tspan> → identity verified, look at ⑤</text>
+  <rect x="438" y="342" width="400" height="34" rx="6" class="sig"/>
+  <text x="450" y="364" class="s"><tspan font-weight="600">Recovered on its own</tspan> → not proof of root cause</text>
+
+  <text x="20" y="408" class="s">While collecting evidence, only do safe mitigations: restore last-known-good DNS record, revert yesterday's change, shift traffic to healthy instances.</text>
+</svg>

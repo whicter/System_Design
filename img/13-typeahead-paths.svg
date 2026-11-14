@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 380" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .off{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .data{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .lane{fill:#FAFAFA;stroke:#ddd}
+  </style>
+  <rect width="880" height="380" fill="#fff"/>
+  <text x="20" y="26" class="h">Typeahead: a read-only online path, and an offline path that rebuilds the trie</text>
+
+  <rect x="10" y="40" width="860" height="120" rx="10" class="lane"/>
+  <text x="24" y="60" class="b" style="fill:#3B6FD8">Online (every keystroke, &lt; 100 ms)</text>
+  <rect x="30" y="76" width="130" height="56" rx="8" class="box"/>
+  <text x="95" y="100" text-anchor="middle" class="b">Client</text>
+  <text x="95" y="118" text-anchor="middle" class="s">debounce</text>
+  <rect x="200" y="76" width="170" height="56" rx="8" class="box"/>
+  <text x="285" y="100" text-anchor="middle" class="b">Suggestion service</text>
+  <text x="285" y="118" text-anchor="middle" class="s">route by prefix → shard</text>
+  <rect x="410" y="76" width="170" height="56" rx="8" class="data"/>
+  <text x="495" y="100" text-anchor="middle" class="b">Cache: prefix → top 10</text>
+  <text x="495" y="118" text-anchor="middle" class="s">short prefixes ~always hit</text>
+  <rect x="620" y="76" width="230" height="56" rx="8" class="data"/>
+  <text x="735" y="100" text-anchor="middle" class="b">Trie shards (in RAM)</text>
+  <text x="735" y="118" text-anchor="middle" class="s">top-K stored at each node</text>
+  <path d="M160,104 L196,104" class="arr"/>
+  <path d="M370,104 L406,104" class="arr"/>
+  <path d="M580,104 L616,104" class="arr"/>
+
+  <rect x="10" y="176" width="860" height="120" rx="10" class="lane"/>
+  <text x="24" y="196" class="b" style="fill:#B36B00">Offline (every ~15 min)</text>
+  <rect x="30" y="212" width="150" height="56" rx="8" class="off"/>
+  <text x="105" y="236" text-anchor="middle" class="b">Query log</text>
+  <text x="105" y="254" text-anchor="middle" class="s">phrase + timestamp</text>
+  <rect x="220" y="212" width="170" height="56" rx="8" class="off"/>
+  <text x="305" y="236" text-anchor="middle" class="b">Aggregate</text>
+  <text x="305" y="254" text-anchor="middle" class="s">counts per window, decay</text>
+  <rect x="430" y="212" width="170" height="56" rx="8" class="off"/>
+  <text x="515" y="236" text-anchor="middle" class="b">Trie builder</text>
+  <text x="515" y="254" text-anchor="middle" class="s">new snapshot</text>
+  <rect x="640" y="212" width="210" height="56" rx="8" class="off"/>
+  <text x="745" y="236" text-anchor="middle" class="b">Swap in</text>
+  <text x="745" y="254" text-anchor="middle" class="s">build standby, then flip</text>
+  <path d="M180,240 L216,240" class="arr"/>
+  <path d="M390,240 L426,240" class="arr"/>
+  <path d="M600,240 L636,240" class="arr"/>
+  <path d="M745,212 L745,136" class="arr"/>
+
+  <text x="20" y="320" class="s"><tspan font-weight="600">Why offline:</tspan> updating the trie on every query would slow reads, and popularity doesn't change second by second.</text>
+  <text x="20" y="340" class="s"><tspan font-weight="600">Sharding:</tspan> A–M / N–Z is uneven (some letters are far hotter) → split by measured load; each shard has a replica.</text>
+  <text x="20" y="360" class="s"><tspan font-weight="600">Trending terms:</tspan> merge a small real-time hot-term stream on top of the offline top-K if freshness matters.</text>
+</svg>

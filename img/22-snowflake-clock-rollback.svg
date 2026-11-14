@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 656" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .ok{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .bad{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .dia{fill:#FFF8E1;stroke:#E0B000;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .yn{font-size:12px;font-weight:600}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+  </style>
+  <rect width="920" height="656" fill="#fff"/>
+  <text x="20" y="26" class="h">Snowflake ID（雪花算法）: 64-bit layout and the clock-rollback（时钟回拨）guard</text>
+
+  <!-- bit layout -->
+  <rect x="20" y="44" width="30" height="40" style="fill:#ddd;stroke:#888"/>
+  <rect x="50" y="44" width="430" height="40" style="fill:#CFE0FB;stroke:#3B6FD8"/>
+  <rect x="480" y="44" width="200" height="40" style="fill:#FFE7C2;stroke:#E08A00"/>
+  <rect x="680" y="44" width="220" height="40" style="fill:#D6F0DF;stroke:#2E8B57"/>
+  <text x="35" y="69" text-anchor="middle" class="b">0</text>
+  <text x="265" y="64" text-anchor="middle" class="b">41-bit timestamp（毫秒时间戳）</text>
+  <text x="265" y="79" text-anchor="middle" class="s">ms since a custom epoch → ≈ 69 years</text>
+  <text x="580" y="64" text-anchor="middle" class="b">10-bit worker ID（机器号）</text>
+  <text x="580" y="79" text-anchor="middle" class="s">1,024 nodes, assigned by ZK / etcd</text>
+  <text x="790" y="64" text-anchor="middle" class="b">12-bit sequence（序号）</text>
+  <text x="790" y="79" text-anchor="middle" class="s">4,096 IDs per ms per node</text>
+  <text x="20" y="100" class="s">sign bit（符号位）always 0 so the ID stays a positive long</text>
+
+  <!-- flow -->
+  <rect x="330" y="118" width="260" height="44" rx="8" class="box"/>
+  <text x="460" y="138" text-anchor="middle" class="b">nextId(): now = current ms</text>
+  <text x="460" y="154" text-anchor="middle" class="s">读当前毫秒</text>
+  <path d="M460,162 L460,184" class="arr"/>
+
+  <polygon points="460,186 590,226 460,266 330,226" class="dia"/>
+  <text x="460" y="222" text-anchor="middle" class="b">now &lt; last ?</text>
+  <text x="460" y="238" text-anchor="middle" class="s">时钟往回走了？</text>
+
+  <!-- NO branch: normal path -->
+  <path d="M460,266 L460,292" class="arr"/>
+  <text x="468" y="284" class="yn" style="fill:#2E8B57">no 否</text>
+  <polygon points="460,294 580,330 460,366 340,330" class="dia"/>
+  <text x="460" y="327" text-anchor="middle" class="b">now == last ?</text>
+  <text x="460" y="343" text-anchor="middle" class="s">还在同一毫秒？</text>
+
+  <path d="M340,330 L222,330 L222,392" class="arr"/>
+  <text x="250" y="322" class="yn" style="fill:#3B6FD8">no 否</text>
+  <rect x="122" y="394" width="200" height="44" rx="8" class="box"/>
+  <text x="222" y="414" text-anchor="middle" class="b">sequence = 0</text>
+  <text x="222" y="430" text-anchor="middle" class="s">新的一毫秒，序号清零</text>
+
+  <path d="M580,330 L700,330 L700,392" class="arr"/>
+  <text x="600" y="322" class="yn" style="fill:#3B6FD8">yes 是</text>
+  <polygon points="700,394 810,428 700,462 590,428" class="dia"/>
+  <text x="700" y="425" text-anchor="middle" class="b">sequence+1 &gt; 4095 ?</text>
+  <text x="700" y="441" text-anchor="middle" class="s">这一毫秒用完了？</text>
+  <path d="M810,428 L860,428 L860,520 L790,520" class="arr"/>
+  <text x="818" y="420" class="yn" style="fill:#E08A00">yes 是</text>
+  <rect x="610" y="498" width="178" height="44" rx="8" class="box"/>
+  <text x="699" y="518" text-anchor="middle" class="b">spin to next ms</text>
+  <text x="699" y="534" text-anchor="middle" class="s">自旋等到下一毫秒，序号清零</text>
+  <path d="M700,462 L700,476 L600,476 L600,566" class="arr"/>
+  <text x="708" y="474" class="yn" style="fill:#2E8B57">no 否 → sequence+1</text>
+  <path d="M222,438 L222,566 L338,566" class="arr"/>
+  <path d="M699,542 L699,566 L592,566" class="arr"/>
+  <rect x="340" y="546" width="250" height="44" rx="8" class="ok"/>
+  <text x="465" y="566" text-anchor="middle" class="b">assemble ID（拼出 ID）</text>
+  <text x="465" y="582" text-anchor="middle" class="s">(ts − epoch)&lt;&lt;22 | worker&lt;&lt;12 | seq</text>
+
+  <!-- YES branch: rollback -->
+  <path d="M330,226 L170,226 L170,240" class="arr"/>
+  <text x="250" y="218" class="yn" style="fill:#D0392B">yes 是：回拨</text>
+  <polygon points="170,242 270,276 170,310 70,276" class="dia"/>
+  <text x="170" y="273" text-anchor="middle" class="b">offset ≤ 5 ms ?</text>
+  <text x="170" y="289" text-anchor="middle" class="s">回拨很小？</text>
+  <path d="M70,276 L36,276 L36,140 L326,140" class="arr"/>
+  <text x="40" y="170" class="yn" style="fill:#2E8B57">yes 是</text>
+  <text x="44" y="186" class="s">wait ~2×offset,</text>
+  <text x="44" y="200" class="s">then retry（等一下重试）</text>
+  <path d="M170,310 L170,330 L60,330 L60,392" class="arr"/>
+  <text x="70" y="326" class="yn" style="fill:#D0392B">no 否</text>
+  <rect x="20" y="394" width="92" height="140" rx="8" class="bad"/>
+  <text x="66" y="416" text-anchor="middle" class="b">refuse</text>
+  <text x="66" y="434" text-anchor="middle" class="s">拒绝发号</text>
+  <text x="66" y="456" text-anchor="middle" class="s">alarm +</text>
+  <text x="66" y="472" text-anchor="middle" class="s">take node</text>
+  <text x="66" y="488" text-anchor="middle" class="s">offline</text>
+  <text x="66" y="506" text-anchor="middle" class="s">（报警并</text>
+  <text x="66" y="522" text-anchor="middle" class="s">下线）</text>
+
+  <text x="20" y="608" class="s"><tspan font-weight="600">Startup check（启动自检, Leaf-Snowflake）:</tspan> every node writes its timestamp to ZooKeeper every 3 s;</text>
+  <text x="20" y="624" class="s">on start, if local time is behind its own last report, it refuses to start（本地时间落后于上次上报就不启动）.</text>
+  <text x="20" y="640" class="s">Stop the node before it issues a duplicate — never try to fix duplicates afterwards（宁可停发，也不能发重复 ID）.</text>
+</svg>

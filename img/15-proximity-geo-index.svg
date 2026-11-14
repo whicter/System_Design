@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 450" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .data{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .hot{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .grid{fill:none;stroke:#bbb}
+    .q{fill:none;stroke:#3B6FD8;stroke-width:1.5}
+    .dot{fill:#D0392B}
+  </style>
+  <rect width="880" height="450" fill="#fff"/>
+  <text x="20" y="26" class="h">"Find nearby" (Yelp / Uber): pick a spatial index, then separate fast-moving writes from the index</text>
+
+  <!-- fixed grid -->
+  <text x="20" y="56" class="b">Fixed grid</text>
+  <g transform="translate(20,64)">
+    <rect width="160" height="160" class="grid"/>
+    <line x1="40" y1="0" x2="40" y2="160" class="grid"/><line x1="80" y1="0" x2="80" y2="160" class="grid"/><line x1="120" y1="0" x2="120" y2="160" class="grid"/>
+    <line x1="0" y1="40" x2="160" y2="40" class="grid"/><line x1="0" y1="80" x2="160" y2="80" class="grid"/><line x1="0" y1="120" x2="160" y2="120" class="grid"/>
+    <circle cx="10" cy="12" r="3" class="dot"/><circle cx="18" cy="22" r="3" class="dot"/><circle cx="28" cy="10" r="3" class="dot"/><circle cx="12" cy="30" r="3" class="dot"/><circle cx="30" cy="30" r="3" class="dot"/><circle cx="22" cy="6" r="3" class="dot"/><circle cx="34" cy="18" r="3" class="dot"/>
+    <circle cx="140" cy="140" r="3" class="dot"/>
+  </g>
+  <text x="20" y="244" class="s">simple, but a downtown cell</text>
+  <text x="20" y="260" class="s">holds thousands, rural ones none</text>
+
+  <!-- quadtree -->
+  <text x="220" y="56" class="b">Quadtree (split when &gt; N places)</text>
+  <g transform="translate(220,64)">
+    <rect width="160" height="160" class="q"/>
+    <line x1="80" y1="0" x2="80" y2="160" class="q"/><line x1="0" y1="80" x2="160" y2="80" class="q"/>
+    <line x1="40" y1="0" x2="40" y2="80" class="q"/><line x1="0" y1="40" x2="80" y2="40" class="q"/>
+    <line x1="20" y1="0" x2="20" y2="40" class="q"/><line x1="0" y1="20" x2="40" y2="20" class="q"/>
+    <circle cx="10" cy="12" r="3" class="dot"/><circle cx="18" cy="22" r="3" class="dot"/><circle cx="28" cy="10" r="3" class="dot"/><circle cx="12" cy="30" r="3" class="dot"/><circle cx="30" cy="30" r="3" class="dot"/><circle cx="22" cy="6" r="3" class="dot"/><circle cx="34" cy="18" r="3" class="dot"/>
+    <circle cx="140" cy="140" r="3" class="dot"/>
+  </g>
+  <text x="220" y="244" class="s">dense areas get small cells;</text>
+  <text x="220" y="260" class="s">~12 GB RAM for 500M places</text>
+
+  <!-- geohash note -->
+  <rect x="420" y="64" width="440" height="88" rx="8" class="data"/>
+  <text x="434" y="86" class="b">Geohash (alternative)</text>
+  <text x="434" y="106" class="s">encode lat/lng as a string; shared prefix ≈ nearby.</text>
+  <text x="434" y="124" class="s">Index it in an ordinary DB/KV store; query own cell + 8 neighbours.</text>
+  <text x="434" y="142" class="s">Easier to shard and update than a tree; edge cells need the neighbour step.</text>
+
+  <rect x="420" y="164" width="440" height="88" rx="8" class="hot"/>
+  <text x="434" y="186" class="b">Read-heavy (Yelp) vs write-heavy (Uber)</text>
+  <text x="434" y="206" class="s">Places rarely move → rebuild index / ratings once a day.</text>
+  <text x="434" y="224" class="s">Drivers move every ~4 s → don't rewrite the tree on every ping.</text>
+  <text x="434" y="242" class="s">Partition by place/driver ID, not by region (tourist hot spots).</text>
+
+  <!-- uber write path -->
+  <text x="20" y="300" class="h">Uber write path: absorb pings in a hash, refresh the index slower</text>
+  <rect x="20" y="314" width="140" height="56" rx="8" class="box"/>
+  <text x="90" y="338" text-anchor="middle" class="b">Driver app</text>
+  <text x="90" y="356" text-anchor="middle" class="s">ping every 4 s</text>
+  <rect x="200" y="314" width="190" height="56" rx="8" class="data"/>
+  <text x="295" y="338" text-anchor="middle" class="b">Latest-location hash</text>
+  <text x="295" y="356" text-anchor="middle" class="s">driver_id → lat/lng (Redis)</text>
+  <rect x="430" y="314" width="190" height="56" rx="8" class="data"/>
+  <text x="525" y="338" text-anchor="middle" class="b">Spatial index</text>
+  <text x="525" y="356" text-anchor="middle" class="s">updated every 10–15 s</text>
+  <rect x="660" y="314" width="200" height="56" rx="8" class="box"/>
+  <text x="760" y="338" text-anchor="middle" class="b">Find driver + ETA</text>
+  <text x="760" y="356" text-anchor="middle" class="s">candidates → exact pos from hash</text>
+  <path d="M160,342 L196,342" class="arr"/>
+  <path d="M390,342 L426,342" class="arr"/>
+  <path d="M620,342 L656,342" class="arr"/>
+  <text x="20" y="398" class="s"><tspan font-weight="600">ETA:</tspan> road network as a graph; plain Dijkstra is too slow → partition the graph, precompute shortcuts inside partitions</text>
+  <text x="20" y="416" class="s">(contraction hierarchies), add live traffic as edge weights, then an ML model corrects the residual.</text>
+  <text x="20" y="434" class="s"><tspan font-weight="600">Storage:</tspan> in-progress trip in a transactional DB (frequent consistent updates); finished trips + location history in a wide-column store.</text>
+</svg>

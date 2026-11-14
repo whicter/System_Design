@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 730" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .ok{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .warn{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .db{fill:#F3EEFC;stroke:#7B5CC4;stroke-width:1.5}
+    .dia{fill:#FFF8E1;stroke:#E0B000;stroke-width:1.5}
+    .grp{fill:#FAFAFA;stroke:#bbb;stroke-dasharray:4 3}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .m{font-size:11.5px;fill:#1f2328;font-family:Menlo, monospace}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .yn{font-size:12px;font-weight:600}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+  </style>
+  <rect width="920" height="730" fill="#fff"/>
+  <text x="20" y="26" class="h">Streaming Top-K（实时热门榜）: partition by itemId → count per window → local top-k → merge → serve</text>
+  <text x="20" y="46" class="s">Example with k = 2: each item lives in exactly one partition, so the union of local top-2 lists always contains the global top-2（按 itemId 分区，合并结果是精确的）</text>
+
+  <!-- events -->
+  <rect x="20" y="236" width="140" height="64" rx="8" class="box"/>
+  <text x="90" y="258" text-anchor="middle" class="b">view / click</text>
+  <text x="90" y="275" text-anchor="middle" class="s">events（浏览/点击）</text>
+  <text x="90" y="291" text-anchor="middle" class="s">~1M / s</text>
+  <path d="M160,268 L186,268" class="arr"/>
+
+  <!-- kafka -->
+  <rect x="188" y="96" width="180" height="340" rx="10" class="grp"/>
+  <text x="200" y="116" class="b">Kafka, key = itemId</text>
+  <rect x="204" y="132" width="148" height="60" rx="8" class="box"/>
+  <text x="278" y="156" text-anchor="middle" class="b">partition 0</text>
+  <text x="278" y="174" text-anchor="middle" class="s">items A, D, G …</text>
+  <rect x="204" y="236" width="148" height="60" rx="8" class="box"/>
+  <text x="278" y="260" text-anchor="middle" class="b">partition 1</text>
+  <text x="278" y="278" text-anchor="middle" class="s">items B, E, H …</text>
+  <rect x="204" y="340" width="148" height="60" rx="8" class="box"/>
+  <text x="278" y="364" text-anchor="middle" class="b">partition 2</text>
+  <text x="278" y="382" text-anchor="middle" class="s">items C, F, I …</text>
+
+  <!-- flink -->
+  <rect x="396" y="96" width="232" height="340" rx="10" class="grp"/>
+  <text x="408" y="116" class="b">Flink, one task per partition</text>
+  <rect x="410" y="132" width="204" height="60" rx="8" class="warn"/>
+  <text x="512" y="152" text-anchor="middle" class="m">A:900 D:40 G:310</text>
+  <text x="512" y="172" text-anchor="middle" class="s">top-2 heap → A:900, G:310</text>
+  <rect x="410" y="236" width="204" height="60" rx="8" class="warn"/>
+  <text x="512" y="256" text-anchor="middle" class="m">B:120 E:700 H:15</text>
+  <text x="512" y="276" text-anchor="middle" class="s">top-2 heap → E:700, B:120</text>
+  <rect x="410" y="340" width="204" height="60" rx="8" class="warn"/>
+  <text x="512" y="360" text-anchor="middle" class="m">C:500 F:80 I:620</text>
+  <text x="512" y="380" text-anchor="middle" class="s">top-2 heap → I:620, C:500</text>
+  <path d="M352,162 L408,162" class="arr"/>
+  <path d="M352,266 L408,266" class="arr"/>
+  <path d="M352,370 L408,370" class="arr"/>
+
+  <!-- merge -->
+  <path d="M614,162 L640,162 L640,250 L660,250" class="arr"/>
+  <path d="M614,266 L658,266" class="arr"/>
+  <path d="M614,370 L640,370 L640,282 L660,282" class="arr"/>
+  <rect x="662" y="230" width="120" height="72" rx="8" class="ok"/>
+  <text x="722" y="252" text-anchor="middle" class="b">merge</text>
+  <text x="722" y="270" text-anchor="middle" class="s">（汇总合并）</text>
+  <text x="722" y="290" text-anchor="middle" class="m">A:900 E:700</text>
+  <path d="M782,266 L800,266" class="arr"/>
+  <rect x="802" y="222" width="104" height="88" rx="8" class="db"/>
+  <text x="854" y="244" text-anchor="middle" class="b">Redis ZSET</text>
+  <text x="854" y="262" text-anchor="middle" class="s">（有序集合）</text>
+  <text x="854" y="280" text-anchor="middle" class="s">API reads</text>
+  <text x="854" y="297" text-anchor="middle" class="m">ZREVRANGE</text>
+
+  <!-- counting decision -->
+  <path d="M512,436 L512,462" class="arr"/>
+  <text x="520" y="455" class="s">how to count per window（每个窗口怎么计数）</text>
+  <polygon points="512,464 672,504 512,544 352,504" class="dia"/>
+  <text x="512" y="500" text-anchor="middle" class="b">exact counters fit in memory?</text>
+  <text x="512" y="517" text-anchor="middle" class="s">每个 item 一个计数器放得下吗？</text>
+  <path d="M352,504 L170,504 L170,560" class="arr"/>
+  <text x="250" y="496" class="yn" style="fill:#2E8B57">yes 是</text>
+  <rect x="30" y="562" width="280" height="56" rx="8" class="ok"/>
+  <text x="170" y="583" text-anchor="middle" class="b">exact: HashMap itemId → count</text>
+  <text x="170" y="602" text-anchor="middle" class="s">精确计数，最简单，默认先选它</text>
+  <path d="M672,504 L760,504 L760,560" class="arr"/>
+  <text x="684" y="496" class="yn" style="fill:#E08A00">no 否</text>
+  <rect x="600" y="562" width="306" height="56" rx="8" class="warn"/>
+  <text x="753" y="583" text-anchor="middle" class="b">approx: Count-Min + Space-Saving</text>
+  <text x="753" y="602" text-anchor="middle" class="s">近似：固定内存，只多算不少算（见图 27）</text>
+
+  <!-- notes -->
+  <rect x="14" y="636" width="892" height="84" rx="8" style="fill:#FFF8E1;stroke:#E0B000"/>
+  <text x="28" y="658" class="s">• Window closes when the watermark（水位线）passes its end; events later than allowed lateness go to a side output（旁路输出）.</text>
+  <text x="28" y="680" class="s">• One viral item overloads one partition → salt the key（itemId#0..7）, count, then re-aggregate by itemId（两阶段聚合，仍然精确）.</text>
+  <text x="28" y="702" class="s">• Write each window to a new key, then swap a pointer, so readers never see a half-written list（写新 key 再切指针）.</text>
+</svg>

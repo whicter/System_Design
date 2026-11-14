@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E08A00"/></marker>
+  </defs>
+  <style>
+    .box{fill:#EAF1FD;stroke:#3B6FD8;stroke-width:1.5}
+    .urg{fill:#FDECEA;stroke:#D0392B;stroke-width:1.5}
+    .del{fill:#FFF4E5;stroke:#E08A00;stroke-width:1.5}
+    .per{fill:#EAF7EE;stroke:#2E8B57;stroke-width:1.5}
+    .t{font-size:13px;fill:#1f2328}
+    .b{font-size:13px;fill:#1f2328;font-weight:600}
+    .s{font-size:11.5px;fill:#555}
+    .h{font-size:14px;font-weight:600;fill:#1f2328}
+    .arr{stroke:#444;stroke-width:1.5;fill:none;marker-end:url(#a)}
+    .age{stroke:#E08A00;stroke-width:1.8;fill:none;marker-end:url(#o);stroke-dasharray:5 4}
+  </style>
+  <rect width="880" height="400" fill="#fff"/>
+  <text x="20" y="26" class="h">Job scheduler: one FIFO queue lets a long job block urgent ones — split by urgency and cap execution</text>
+
+  <rect x="20" y="130" width="140" height="56" rx="8" class="box"/>
+  <text x="90" y="154" text-anchor="middle" class="b">Submit task</text>
+  <text x="90" y="172" text-anchor="middle" class="s">+ delay tolerance</text>
+
+  <rect x="220" y="56" width="230" height="50" rx="8" class="urg"/>
+  <text x="236" y="78" class="b">Urgent</text>
+  <text x="236" y="96" class="s">security alerts, payment events</text>
+  <rect x="220" y="134" width="230" height="50" rx="8" class="del"/>
+  <text x="236" y="156" class="b">Delayable</text>
+  <text x="236" y="174" class="s">friend suggestions, re-indexing</text>
+  <rect x="220" y="212" width="230" height="50" rx="8" class="per"/>
+  <text x="236" y="234" class="b">Periodic</text>
+  <text x="236" y="252" class="s">hourly / nightly batches</text>
+  <path d="M160,150 L216,84" class="arr"/>
+  <path d="M160,158 L216,158" class="arr"/>
+  <path d="M160,166 L216,234" class="arr"/>
+  <path d="M222,150 Q196,118 222,88" class="age"/>
+  <text x="20" y="282" class="s"><tspan font-weight="600" style="fill:#B36B00">Aging (orange dashed):</tspan> a delayable task close to its delay tolerance is promoted to urgent, so nothing starves.</text>
+
+  <rect x="560" y="120" width="150" height="76" rx="8" class="box"/>
+  <text x="635" y="144" text-anchor="middle" class="b">Scheduler</text>
+  <text x="635" y="162" text-anchor="middle" class="s">shortest delay</text>
+  <text x="635" y="178" text-anchor="middle" class="s">tolerance first</text>
+  <path d="M450,81 L556,140" class="arr"/>
+  <path d="M450,159 L556,159" class="arr"/>
+  <path d="M450,237 L556,178" class="arr"/>
+
+  <rect x="750" y="100" width="110" height="116" rx="8" class="per"/>
+  <text x="805" y="124" text-anchor="middle" class="b">Workers</text>
+  <text x="805" y="146" text-anchor="middle" class="s">sandboxed</text>
+  <text x="805" y="164" text-anchor="middle" class="s">(container/VM)</text>
+  <text x="805" y="186" text-anchor="middle" class="s">exec cap +</text>
+  <text x="805" y="202" text-anchor="middle" class="s">checkpoints</text>
+  <path d="M710,158 L746,158" class="arr"/>
+
+  <text x="20" y="300" class="s"><tspan font-weight="600">Execution cap:</tspan> kill a task past its time limit (bugs, infinite loops), free the slot, notify the owner; legit long jobs checkpoint so they can resume.</text>
+  <text x="20" y="320" class="s"><tspan font-weight="600">Idempotent tasks:</tspan> success + lost ack → the scheduler re-runs it; tasks carry an idempotency key (see §2.5).</text>
+  <text x="20" y="340" class="s"><tspan font-weight="600">Off-peak shifting:</tspan> run delayable work when utilisation drops; scale the worker pool with demand.</text>
+  <text x="20" y="360" class="s"><tspan font-weight="600">Multi-tenant safety:</tspan> untrusted code runs isolated, with per-tenant resource caps and auth on submission.</text>
+  <text x="20" y="384" class="s">Bridge: KYC used separate consumer groups so bulk re-verification couldn't starve real-time events — the same "split by urgency" idea.</text>
+</svg>
