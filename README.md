@@ -16,7 +16,7 @@ System design notes: Staff-level interview prep (framework, building blocks, que
 
 ## 相关仓库 / Related
 
-- [LeetCode Java：按模式整理的算法题与 Java 题解](https://github.com/whicter/leetcode-java) · [网站](https://whicter.github.io/leetcode-java/)
+- [Algorithm Coding Interview：按模式整理的算法题与 Java 题解](https://github.com/whicter/leetcode-java) · [网站](https://whicter.github.io/leetcode-java/)
 - [AI Learning Notes：LLM / Agent 零基础、AI 系统设计、FDE 面试](https://github.com/whicter/AI-Learning-Notes) · [网站](https://whicter.github.io/AI-Learning-Notes/)
 
 > 本仓库由作者的私有笔记库自动同步（one-way mirror）。This repo is generated automatically from a private notes vault; edits made here are overwritten on the next sync.

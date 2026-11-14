@@ -508,7 +508,10 @@ def build_landing_pages(nav):
         out.append({title: [{title: landing}] + value})
     home = os.path.join(SRC, "index.md")
     if cards and os.path.exists(home):
-        grid = ['<div class="kb-grid" markdown="0">']
+        current = open(home, encoding="utf-8").read()
+        m = re.search(r'<!-- KB_MODULE_CARDS(?::([\w-]+))? -->', current)
+        variant = m.group(1) if m and m.group(1) else ""
+        grid = [f'<div class="kb-grid{" kb-grid--" + variant if variant else ""}" markdown="0">']
         for title, landing, desc, icon, count in cards:
             grid.append(f'<a class="kb-card" href="{page_href("index.md", landing)}">'
                         f'<div class="kb-card__icon">{icon}</div>'
@@ -516,7 +519,7 @@ def build_landing_pages(nav):
                         f'<div class="kb-card__desc">{html_lib.escape(desc)}</div>'
                         f'<div class="kb-card__foot">{html_lib.escape(count)}</div></a>')
         grid.append("</div>")
-        text = open(home, encoding="utf-8").read().replace("<!-- KB_MODULE_CARDS -->", "\n".join(grid))
+        text = re.sub(r'<!-- KB_MODULE_CARDS(?::[\w-]+)? -->', lambda _: "\n".join(grid), current)
         with open(home, "w", encoding="utf-8") as fh:
             fh.write(text)
     return out
@@ -551,10 +554,11 @@ def add_page_meta(nav, original_paths):
 
 
 def copy_site_assets():
-    css = os.path.join(SITE_DIR, "extra.css")
-    if os.path.exists(css):
-        os.makedirs(os.path.join(SRC, "stylesheets"), exist_ok=True)
-        shutil.copy2(css, os.path.join(SRC, "stylesheets", "extra.css"))
+    os.makedirs(os.path.join(SRC, "stylesheets"), exist_ok=True)
+    for name in ("extra.css", "home.css"):
+        css = os.path.join(SITE_DIR, name)
+        if os.path.exists(css):
+            shutil.copy2(css, os.path.join(SRC, "stylesheets", name))
 
 
 def main():
