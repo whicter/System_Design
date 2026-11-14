@@ -39,9 +39,11 @@ BACKLINK = re.compile(r'\s*\[↑\s*目录\]\(#[^)]*\)')
 
 
 def strip_manual_toc(text):
-    """Remove '目录' blocks made only of in-page anchor links, and '↑ 目录' backlinks."""
+    """Remove '目录' blocks (a title followed by a list that is mostly in-page
+    anchor links, at any nesting depth) and '↑ 目录' backlinks."""
     lines = text.split("\n")
     out, i, in_code = [], 0, False
+    list_line = re.compile(r'^\s*([-*+]|\d+\.)\s+')
     while i < len(lines):
         line = lines[i]
         if line.lstrip().startswith("```"):
@@ -51,15 +53,16 @@ def strip_manual_toc(text):
             while j < len(lines) and not lines[j].strip():
                 j += 1
             k = j
-            while k < len(lines) and (TOC_ITEM.match(lines[k]) or not lines[k].strip()):
+            while k < len(lines) and (list_line.match(lines[k]) or not lines[k].strip()):
                 k += 1
-            if k > j and all(TOC_ITEM.match(l) or not l.strip() for l in lines[j:k]):
+            items = [l for l in lines[j:k] if list_line.match(l)]
+            anchors = [l for l in items if "](#" in l]
+            if items and len(anchors) >= 0.8 * len(items):
                 i = k
                 continue
         out.append(line if in_code else BACKLINK.sub("", line))
         i += 1
     return "\n".join(out)
-
 
 def nest_extra_h1(text):
     """If a page has several '# ' headings, keep the first as the title and
@@ -96,6 +99,31 @@ def strip_title_number(text):
     return re.sub(r'^(# )\d{1,3}[a-z]?\s*[·・.]\s*', r'\1', text, count=1, flags=re.M)
 
 
+def add_list_breaks(text):
+    """MkDocs needs a blank line between a paragraph and a list that follows it
+    (GitHub and Obsidian don't). Insert one, also inside blockquotes."""
+    lines = text.split("\n")
+    out, in_code = [], False
+    item = re.compile(r'^(\s*(?:>\s*)*)([-*+]|\d+\.)\s+\S')
+    quote_of = re.compile(r'^\s*((?:>\s*)*)')
+    for line in lines:
+        if line.lstrip().lstrip(">").lstrip().startswith("```"):
+            in_code = not in_code
+        if not in_code and out and item.match(line):
+            prev = out[-1]
+            quote = quote_of.match(line).group(1).rstrip()
+            prev_quote = quote_of.match(prev).group(1).rstrip()
+            prev_body = prev[quote_of.match(prev).end():]
+            prev_is_item = bool(item.match(prev))
+            prev_indented = prev.startswith((" ", "\t")) and not prev_quote
+            if (prev_body.strip() and not prev_is_item and not prev_indented
+                    and not prev_body.lstrip().startswith(("|", "#", "<"))
+                    and prev_quote == quote):
+                out.append(quote)
+        out.append(line)
+    return "\n".join(out)
+
+
 def copy_sources():
     shutil.rmtree(SRC, ignore_errors=True)
     os.makedirs(SRC)
@@ -113,7 +141,7 @@ def copy_sources():
                 p = os.path.join(root, f)
                 with open(p, encoding="utf-8") as fh:
                     text = fh.read()
-                new = strip_title_number(nest_extra_h1(strip_manual_toc(text)))
+                new = add_list_breaks(strip_title_number(nest_extra_h1(strip_manual_toc(text))))
                 if new != text:
                     with open(p, "w", encoding="utf-8") as fh:
                         fh.write(new)
